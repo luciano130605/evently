@@ -64,6 +64,9 @@ select {
 input {
   font-size: 16px !important;
 }
+textarea {
+  font-size: 16px !important;
+}
 
 button,
 a {
