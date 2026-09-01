@@ -80,7 +80,7 @@ export default function Invitacion() {
         };
     }, [slug]);
 
-    const theme = THEMES[invitation.template] || THEMES.lavender;
+    const invitationTheme = THEMES[invitation.template] || THEMES.lavender;
 
     function isAppleDevice() {
         const userAgent = navigator.userAgent || navigator.vendor || "";
@@ -171,11 +171,11 @@ export default function Invitacion() {
         <main
             className="public-invitation"
             style={{
-                "--invite-primary": theme.primary,
-                "--invite-secondary": theme.secondary,
-                "--invite-background": theme.background,
-                "--invite-soft": theme.soft,
-                "--invite-text": theme.text
+                "--invite-primary": invitationTheme.primary,
+                "--invite-secondary": "#F4F0FF",
+                "--invite-background": "#FFFFFF",
+                "--invite-soft": "#F8F6FC",
+                "--invite-text": "#302A43"
             }}
         >
             <section className="invitation-cover">

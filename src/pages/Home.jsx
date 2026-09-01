@@ -2,7 +2,9 @@
 
 import { Link, useNavigate } from "react-router-dom";
 
-export default function Home() {
+import ThemeToggle from "../components/ThemeToggle";
+
+export default function Home({ theme, onToggleTheme }) {
     const navigate = useNavigate();
 
     const goToAdminQuick = () => {
@@ -25,7 +27,7 @@ export default function Home() {
                 </Link>
 
 
-                <div>
+                <div className="home-header-actions">
                     <Link
                         to="/invitacion/sofia"
                         className="header-demo"
@@ -34,9 +36,12 @@ export default function Home() {
                     </Link>
 
 
+
                     <button type="button" className="home-secondary" onClick={goToAdminQuick}>
                         Ir al admin
                     </button>
+
+                    <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
                 </div>
             </header>
 
@@ -107,7 +112,10 @@ export default function Home() {
                         </small>
 
                         <div className="preview-count">
-                            076
+                            <span> 5</span>
+                            <small>
+                                Días
+                            </small>
                         </div>
 
                         <div className="preview-bottom">

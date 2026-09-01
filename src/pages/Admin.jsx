@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { HugeiconsIcon } from "@hugeicons/react";
+import ThemeToggle from "../components/ThemeToggle";
 
 import {
     BeefOffFreeIcons,
@@ -20,7 +21,7 @@ import {
     loadRsvpsBySlug
 } from "../lib/invitations";
 
-function AdminEntry() {
+function AdminEntry({ theme, onToggleTheme }) {
     const navigate = useNavigate();
 
     const [slug, setSlug] = useState("");
@@ -59,6 +60,9 @@ function AdminEntry() {
             <header className="admin-header">
                 <Link to="/">Volver</Link>
                 <span className="brand">mis15</span>
+                <div className="admin-header-actions">
+                    <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
+                </div>
             </header>
 
             <form className="admin-login" onSubmit={submit}>
@@ -108,7 +112,7 @@ function AdminEntry() {
     );
 }
 
-export default function Admin() {
+export default function Admin({ theme, onToggleTheme }) {
     const { slug } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
@@ -252,7 +256,7 @@ export default function Admin() {
     };
 
     if (!slug) {
-        return <AdminEntry />;
+        return <AdminEntry theme={theme} onToggleTheme={onToggleTheme} />;
     }
 
     if (loading) {
@@ -281,6 +285,9 @@ export default function Admin() {
                 <header className="admin-header">
                     <Link to="/">Volver</Link>
                     <span className="brand">mis15</span>
+                    <div className="admin-header-actions">
+                        <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
+                    </div>
                 </header>
 
                 <div className="admin-login">
@@ -337,7 +344,9 @@ export default function Admin() {
                 </Link>
 
                 <span className="brand">mis15</span>
-                <span>PANEL</span>
+                <div className="admin-header-actions">
+                    <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
+                </div>
             </header>
 
             <section className="admin-head">

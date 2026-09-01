@@ -10,6 +10,7 @@ import {
 } from "../src/lib/invitations";
 import { demoInvitation } from "../src/data/demoInvitation";
 import { isRequiredFormComplete } from "../src/pages/Crear";
+import { applyTheme, resolveThemePreference } from "../src/lib/theme";
 
 function setupLocalStorage() {
     const storage = {};
@@ -63,6 +64,16 @@ function setupLocalStorage() {
         writable: true
     });
 
+    Object.defineProperty(globalThis, "document", {
+        value: {
+            documentElement: {
+                dataset: {}
+            }
+        },
+        configurable: true,
+        writable: true
+    });
+
     return mockStorage;
 }
 
@@ -93,6 +104,23 @@ describe("Invitaciones XV - suite completa", () => {
     beforeEach(() => {
         setupLocalStorage();
         vi.restoreAllMocks();
+    });
+
+    it("usa modo claro por defecto si no hay una preferencia guardada", () => {
+        localStorage.removeItem("mis15-theme");
+
+        expect(resolveThemePreference()).toBe("light");
+    });
+
+    it("aplica y persiste el tema oscuro en el documento global", () => {
+        localStorage.setItem("mis15-theme", "dark");
+
+        const resolved = resolveThemePreference();
+        applyTheme(resolved);
+
+        expect(resolved).toBe("dark");
+        expect(document.documentElement.dataset.theme).toBe("dark");
+        expect(localStorage.getItem("mis15-theme")).toBe("dark");
     });
 
     it("deja la dirección vacía en la plantilla demo para no disparar búsquedas automáticas", () => {
