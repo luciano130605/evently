@@ -48,6 +48,7 @@ function AdminEntry() {
             return;
         }
 
+        window.sessionStorage.setItem(`mis15_admin_auth_${invitation.slug}`, "true");
         navigate(`/admin/${invitation.slug}`, {
             state: { authenticated: true }
         });
@@ -111,20 +112,28 @@ export default function Admin() {
     const { slug } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
+    const authenticatedInSession = typeof window !== "undefined" &&
+        window.sessionStorage.getItem(`mis15_admin_auth_${slug}`) === "true";
 
     const [invitation, setInvitation] = useState(null);
     const [rsvps, setRsvps] = useState([]);
     const [password, setPassword] = useState("");
     const [logged, setLogged] = useState(
-        () => location.state?.authenticated === true
+        () => location.state?.authenticated === true || authenticatedInSession
     );
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [page, setPage] = useState(1);
+    const [demoRsvps, setDemoRsvps] = useState([]);
 
     // Estado para saber si el link fue copiado
     const [copied, setCopied] = useState(false);
+
+    const visibleRsvps = demoRsvps.length > 0 ? demoRsvps : rsvps;
+    const totalPages = Math.max(1, Math.ceil(visibleRsvps.length / 10));
+    const paginatedRsvps = visibleRsvps.slice((page - 1) * 10, page * 10);
 
     useEffect(() => {
         let active = true;
@@ -227,6 +236,19 @@ export default function Admin() {
             setDeleting(false);
             setShowDeleteModal(false);
         }
+    };
+
+    const createDemoRsvps = () => {
+        const restrictions = ["Ninguna", "Vegetariano", "Vegano", "Alergia"];
+        const generated = Array.from({ length: 20 }, (_, index) => ({
+            name: `Invitado de prueba ${String(index + 1).padStart(2, "0")}`,
+            restriction: restrictions[index % restrictions.length],
+            allergy: index % restrictions.length === 3 ? "Frutos secos" : "",
+            createdAt: new Date(Date.now() - index * 86400000).toISOString()
+        }));
+
+        setDemoRsvps(generated);
+        setPage(1);
     };
 
     if (!slug) {
@@ -479,7 +501,7 @@ export default function Admin() {
                     </div>
 
                     <div>
-                        <strong>{rsvps.length}</strong>
+                        <strong>{visibleRsvps.length}</strong>
                         <span>CONFIRMADOS</span>
                     </div>
                 </div>
@@ -495,7 +517,7 @@ export default function Admin() {
                     <div>
                         <strong>
                             {
-                                rsvps.filter(
+                                visibleRsvps.filter(
                                     (item) =>
                                         item.restriction &&
                                         item.restriction !== "Ninguna"
@@ -513,9 +535,10 @@ export default function Admin() {
                     <div>
                         <h2>Confirmaciones</h2>
                     </div>
+                   
                 </div>
 
-                {rsvps.length === 0 ? (
+                {visibleRsvps.length === 0 ? (
                     <div className="empty-state">
                         <HugeiconsIcon
                             icon={UserGroup02Icon}
@@ -532,7 +555,7 @@ export default function Admin() {
                     </div>
                 ) : (
                     <div className="rsvp-list">
-                        {rsvps.map((rsvp, index) => (
+                        {paginatedRsvps.map((rsvp, index) => (
                             <div
                                 className="rsvp-admin-row"
                                 key={`${rsvp.name}-${index}`}
@@ -555,6 +578,28 @@ export default function Admin() {
                                 </small>
                             </div>
                         ))}
+                    </div>
+                )}
+
+                {visibleRsvps.length > 10 && (
+                    <div className="pagination-controls">
+                        <button
+                            type="button"
+                            className="secondary-button"
+                            disabled={page === 1}
+                            onClick={() => setPage((current) => Math.max(1, current - 1))}
+                        >
+                            Anterior
+                        </button>
+                        <span>Página {page} de {totalPages}</span>
+                        <button
+                            type="button"
+                            className="secondary-button"
+                            disabled={page === totalPages}
+                            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                        >
+                            Siguiente
+                        </button>
                     </div>
                 )}
             </section>

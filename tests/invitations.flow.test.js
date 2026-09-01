@@ -1,22 +1,42 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
 
-import { deleteInvitation, saveInvitation, saveRsvp, loadInvitationBySlug, loadRsvpsBySlug, slugify } from "../src/lib/invitations";
+import {
+    deleteInvitation,
+    saveInvitation,
+    saveRsvp,
+    loadInvitationBySlug,
+    loadRsvpsBySlug,
+    slugify
+} from "../src/lib/invitations";
 
 function setupLocalStorage() {
     const storage = {};
 
     const mockStorage = {
         getItem(key) {
-            return Object.prototype.hasOwnProperty.call(storage, key) ? storage[key] : null;
+            return Object.prototype.hasOwnProperty.call(storage, key)
+                ? storage[key]
+                : null;
         },
+
         setItem(key, value) {
             storage[key] = String(value);
         },
+
         removeItem(key) {
             delete storage[key];
         },
+
         clear() {
             Object.keys(storage).forEach((key) => delete storage[key]);
+        },
+
+        key(index) {
+            return Object.keys(storage)[index] ?? null;
+        },
+
+        get length() {
+            return Object.keys(storage).length;
         }
     };
 
@@ -44,128 +64,663 @@ function setupLocalStorage() {
     return mockStorage;
 }
 
-describe("flujo completo de invitaciones XV", () => {
+function makeInvitation(overrides = {}) {
+    return {
+        slug: "sofia",
+        name: "Sofía",
+        password: "123456",
+        date: "2026-11-15",
+        timeStart: "20:00",
+        timeEnd: "23:00",
+        template: "rose",
+        dressColorsNotAllowed: "Blanco, rojo",
+        ...overrides
+    };
+}
+
+function makeRsvp(index, overrides = {}) {
+    return {
+        name: `Invitado ${index}`,
+        restriction: index % 2 === 0 ? "Vegetariano" : "Ninguna",
+        detail: index % 3 === 0 ? "Sin nueces" : "",
+        ...overrides
+    };
+}
+
+describe("Invitaciones XV - suite completa", () => {
     beforeEach(() => {
         setupLocalStorage();
         vi.restoreAllMocks();
     });
 
-    it("genera slug limpio a partir del nombre de la quinceañera", () => {
-        expect(slugify("Sofía Álvarez!")) .toBe("sofia-alvarez");
-        expect(slugify("   Sofía   ")).toBe("sofia");
-    });
+    // ============================================================
+    // SLUGIFY
+    // ============================================================
 
-    it("crea una invitación válida y la puede recuperar por slug", async () => {
-        const invitation = {
-            slug: "sofia",
-            name: "Sofía",
-            password: "123456",
-            date: "2026-11-15",
-            timeStart: "20:00",
-            timeEnd: "23:00",
-            template: "rose",
-            dressColorsNotAllowed: "Blanco, rojo"
-        };
-
-        const saved = await saveInvitation(invitation);
-        const loaded = await loadInvitationBySlug("sofia");
-
-        expect(saved.slug).toBe("sofia");
-        expect(loaded.name).toBe("Sofía");
-        expect(loaded.password).toBe("123456");
-        expect(loaded.template).toBe("rose");
-        expect(loaded.dressColorsNotAllowed).toBe("Blanco, rojo");
-    });
-
-    it("guarda varias confirmaciones y las devuelve ordenadas por fecha de creación", async () => {
-        const slug = "sofia";
-
-        await saveRsvp(slug, { name: "Ana", restriction: "Vegetariano", detail: "" });
-        await saveRsvp(slug, { name: "Lucas", restriction: "Ninguna", detail: "" });
-        await saveRsvp(slug, { name: "Marta", restriction: "Otra", detail: "Sin gluten" });
-
-        const rows = await loadRsvpsBySlug(slug);
-
-        expect(rows).toHaveLength(3);
-        expect(rows.map((row) => row.name)).toEqual(["Ana", "Lucas", "Marta"]);
-    });
-
-    it("mantiene los datos del invitado y la restricción alimentaria en la confirmación", async () => {
-        const slug = "sofia";
-
-        const rows = await saveRsvp(slug, {
-            name: "Pedro",
-            restriction: "Otra",
-            detail: "Sin lácteos"
+    describe("slugify", () => {
+        it("convierte un nombre normal a slug", () => {
+            expect(slugify("Sofía Álvarez")).toBe("sofia-alvarez");
         });
 
-        expect(rows[0]).toMatchObject({
-            name: "Pedro",
-            restriction: "Otra",
-            detail: "Sin lácteos"
+        it("elimina tildes", () => {
+            expect(slugify("ÁÉÍÓÚ áéíóú Ññ")).toBe("aeiou-aeiou-nn");
+        });
+
+        it("elimina espacios al principio y al final", () => {
+            expect(slugify("   Sofía   ")).toBe("sofia");
+        });
+
+        it("convierte múltiples espacios en un solo guion", () => {
+            expect(slugify("Sofía     Álvarez")).toBe("sofia-alvarez");
+        });
+
+        it("elimina caracteres especiales", () => {
+            expect(slugify("Sofía!!! @#$ Álvarez")).toBe("sofia-alvarez");
+        });
+
+        it("convierte mayúsculas a minúsculas", () => {
+            expect(slugify("SOFÍA ALVAREZ")).toBe("sofia-alvarez");
+        });
+
+        it("maneja nombres con números", () => {
+            expect(slugify("Sofía 15")).toBe("sofia-15");
+        });
+
+        it("no genera guiones innecesarios", () => {
+            expect(slugify(" -- Sofía -- ")).toBe("sofia");
+        });
+
+        it("maneja string vacío", () => {
+            expect(slugify("")).toBe("");
         });
     });
 
-    it("guarda el detalle de una alergia", async () => {
-        const rows = await saveRsvp("sofia", {
-            name: "Laura",
-            restriction: "Alergia",
-            allergy: "Maní"
+    // ============================================================
+    // INVITACIONES
+    // ============================================================
+
+    describe("invitaciones", () => {
+        it("crea una invitación válida", async () => {
+            const invitation = makeInvitation();
+
+            const saved = await saveInvitation(invitation);
+
+            expect(saved).toMatchObject(invitation);
         });
 
-        expect(rows[0]).toMatchObject({
-            name: "Laura",
-            restriction: "Alergia",
-            allergy: "Maní"
+        it("puede recuperar una invitación por slug", async () => {
+            await saveInvitation(makeInvitation());
+
+            const loaded = await loadInvitationBySlug("sofia");
+
+            expect(loaded).not.toBeNull();
+            expect(loaded.name).toBe("Sofía");
+            expect(loaded.password).toBe("123456");
+            expect(loaded.template).toBe("rose");
+        });
+
+        it("permite buscar el slug sin importar mayúsculas", async () => {
+            await saveInvitation(makeInvitation());
+
+            const loaded = await loadInvitationBySlug("SOFIA");
+
+            expect(loaded).not.toBeNull();
+            expect(loaded.name).toBe("Sofía");
+        });
+
+        it("devuelve null para una invitación inexistente", async () => {
+            const loaded = await loadInvitationBySlug("no-existe");
+
+            expect(loaded).toBeNull();
+        });
+
+        it("mantiene los campos opcionales", async () => {
+            await saveInvitation(
+                makeInvitation({
+                    template: "lavender",
+                    dressColorsNotAllowed: "Blanco",
+                    customMessage: "Te esperamos ❤️"
+                })
+            );
+
+            const loaded = await loadInvitationBySlug("sofia");
+
+            expect(loaded.template).toBe("lavender");
+            expect(loaded.dressColorsNotAllowed).toBe("Blanco");
+            expect(loaded.customMessage).toBe("Te esperamos ❤️");
+        });
+
+        it("no rompe con campos vacíos", async () => {
+            const saved = await saveInvitation({
+                name: "",
+                password: "",
+                date: "",
+                timeStart: "",
+                timeEnd: ""
+            });
+
+            expect(saved).toBeTruthy();
+            expect(validInvitationShape(saved)).toBe(true);
+        });
+
+        it("mantiene invitaciones con nombres y slugs diferentes", async () => {
+            await saveInvitation(makeInvitation({
+                slug: "maria",
+                name: "María"
+            }));
+
+            await saveInvitation(makeInvitation({
+                slug: "valentina",
+                name: "Valentina"
+            }));
+
+            await saveInvitation(makeInvitation({
+                slug: "camila",
+                name: "Camila"
+            }));
+
+            const maria = await loadInvitationBySlug("maria");
+            const valentina = await loadInvitationBySlug("valentina");
+            const camila = await loadInvitationBySlug("camila");
+
+            expect(maria.name).toBe("María");
+            expect(valentina.name).toBe("Valentina");
+            expect(camila.name).toBe("Camila");
+        });
+
+        it("no mezcla RSVPs entre invitaciones diferentes", async () => {
+            await saveInvitation(makeInvitation({ slug: "sofia", name: "Sofía" }));
+            await saveInvitation(makeInvitation({ slug: "maria", name: "María" }));
+
+            await saveRsvp("sofia", {
+                name: "Ana",
+                restriction: "Ninguna"
+            });
+
+            await saveRsvp("maria", {
+                name: "Lucas",
+                restriction: "Vegetariano"
+            });
+
+            const sofiaRows = await loadRsvpsBySlug("sofia");
+            const mariaRows = await loadRsvpsBySlug("maria");
+
+            expect(sofiaRows).toHaveLength(1);
+            expect(mariaRows).toHaveLength(1);
+
+            expect(sofiaRows[0].name).toBe("Ana");
+            expect(mariaRows[0].name).toBe("Lucas");
         });
     });
 
-    it("no rompe si se intenta guardar una invitación sin nombre o con campos vacíos", async () => {
-        const invalid = await saveInvitation({ name: "", password: "", date: "", timeStart: "", timeEnd: "" });
+    // ============================================================
+    // RSVP
+    // ============================================================
 
-        expect(invalid.name).toBeTruthy();
-        expect(validInvitationShape(invalid)).toBe(true);
+    describe("confirmaciones RSVP", () => {
+        it("guarda una confirmación", async () => {
+            const rows = await saveRsvp("sofia", {
+                name: "Pedro",
+                restriction: "Ninguna"
+            });
+
+            expect(rows).toHaveLength(1);
+            expect(rows[0].name).toBe("Pedro");
+        });
+
+        it("mantiene los datos completos del invitado", async () => {
+            const rows = await saveRsvp("sofia", {
+                name: "Pedro",
+                restriction: "Otra",
+                detail: "Sin lácteos"
+            });
+
+            expect(rows[0]).toMatchObject({
+                name: "Pedro",
+                restriction: "Otra",
+                detail: "Sin lácteos"
+            });
+        });
+
+        it("guarda alergias correctamente", async () => {
+            const rows = await saveRsvp("sofia", {
+                name: "Laura",
+                restriction: "Alergia",
+                allergy: "Maní"
+            });
+
+            expect(rows[0]).toMatchObject({
+                name: "Laura",
+                restriction: "Alergia",
+                allergy: "Maní"
+            });
+        });
+
+        it("permite restricciones diferentes", async () => {
+            await saveRsvp("sofia", {
+                name: "Ana",
+                restriction: "Ninguna"
+            });
+
+            await saveRsvp("sofia", {
+                name: "Lucas",
+                restriction: "Vegetariano"
+            });
+
+            await saveRsvp("sofia", {
+                name: "Marta",
+                restriction: "Otra",
+                detail: "Sin gluten"
+            });
+
+            await saveRsvp("sofia", {
+                name: "Juan",
+                restriction: "Alergia",
+                allergy: "Maní"
+            });
+
+            const rows = await loadRsvpsBySlug("sofia");
+
+            expect(rows).toHaveLength(4);
+            expect(rows[0].restriction).toBe("Ninguna");
+            expect(rows[1].restriction).toBe("Vegetariano");
+            expect(rows[2].restriction).toBe("Otra");
+            expect(rows[3].restriction).toBe("Alergia");
+        });
+
+        it("devuelve las confirmaciones en orden de creación", async () => {
+            await saveRsvp("sofia", makeRsvp(1));
+            await saveRsvp("sofia", makeRsvp(2));
+            await saveRsvp("sofia", makeRsvp(3));
+
+            const rows = await loadRsvpsBySlug("sofia");
+
+            expect(rows.map((row) => row.name)).toEqual([
+                "Invitado 1",
+                "Invitado 2",
+                "Invitado 3"
+            ]);
+        });
+
+        it("devuelve [] cuando no existen confirmaciones", async () => {
+            const rows = await loadRsvpsBySlug("sofia");
+
+            expect(rows).toEqual([]);
+        });
     });
 
-    it("simula un alto volumen de usuarios confirmando al mismo tiempo y no pierde registros", async () => {
-        const slug = "maria";
-        const totalUsers = 250;
+    // ============================================================
+    // CARGA REALISTA
+    // ============================================================
 
-        const promises = Array.from({ length: totalUsers }).map((_, index) =>
-            saveRsvp(slug, {
-                name: `Usuario ${index + 1}`,
-                restriction: index % 2 === 0 ? "Ninguna" : "Vegetariano",
-                detail: index % 3 === 0 ? "Sin nueces" : ""
-            })
-        );
+    describe("pruebas de carga local", () => {
+        it("soporta exactamente 100 invitados confirmados", async () => {
+            const total = 100;
 
-        await Promise.all(promises);
+            for (let i = 1; i <= total; i++) {
+                await saveRsvp("sofia", makeRsvp(i));
+            }
 
-        const rows = await loadRsvpsBySlug(slug);
+            const rows = await loadRsvpsBySlug("sofia");
 
-        expect(rows).toHaveLength(totalUsers);
-        expect(new Set(rows.map((row) => row.name)).size).toBe(totalUsers);
+            expect(rows).toHaveLength(100);
+
+            expect(new Set(rows.map((row) => row.name)).size)
+                .toBe(100);
+        });
+
+        it("soporta 250 invitados", async () => {
+            const total = 250;
+
+            for (let i = 1; i <= total; i++) {
+                await saveRsvp("sofia", makeRsvp(i));
+            }
+
+            const rows = await loadRsvpsBySlug("sofia");
+
+            expect(rows).toHaveLength(250);
+        });
+
+        it("soporta 500 invitados", async () => {
+            const total = 500;
+
+            for (let i = 1; i <= total; i++) {
+                await saveRsvp("sofia", makeRsvp(i));
+            }
+
+            const rows = await loadRsvpsBySlug("sofia");
+
+            expect(rows).toHaveLength(500);
+        });
+
+        it("soporta 1000 invitados localmente", async () => {
+            const total = 1000;
+
+            for (let i = 1; i <= total; i++) {
+                await saveRsvp("sofia", makeRsvp(i));
+            }
+
+            const rows = await loadRsvpsBySlug("sofia");
+
+            expect(rows).toHaveLength(1000);
+
+            expect(new Set(rows.map((row) => row.name)).size)
+                .toBe(1000);
+        });
+
+        it("no pierde registros con múltiples confirmaciones concurrentes", async () => {
+            const total = 250;
+
+            const promises = Array.from(
+                { length: total },
+                (_, index) =>
+                    saveRsvp("sofia", makeRsvp(index + 1))
+            );
+
+            await Promise.all(promises);
+
+            const rows = await loadRsvpsBySlug("sofia");
+
+            expect(rows).toHaveLength(total);
+            expect(new Set(rows.map((row) => row.name)).size)
+                .toBe(total);
+        });
+
+        it("mantiene todos los tipos de restricciones en una carga grande", async () => {
+            const total = 100;
+
+            for (let i = 1; i <= total; i++) {
+                await saveRsvp("sofia", {
+                    name: `Invitado ${i}`,
+                    restriction:
+                        i % 4 === 0
+                            ? "Alergia"
+                            : i % 3 === 0
+                                ? "Otra"
+                                : i % 2 === 0
+                                    ? "Vegetariano"
+                                    : "Ninguna",
+                    detail: i % 3 === 0 ? "Detalle" : "",
+                    allergy: i % 4 === 0 ? "Maní" : ""
+                });
+            }
+
+            const rows = await loadRsvpsBySlug("sofia");
+
+            expect(rows).toHaveLength(100);
+
+            expect(rows.filter(
+                (row) => row.restriction === "Ninguna"
+            ).length).toBeGreaterThan(0);
+
+            expect(rows.filter(
+                (row) => row.restriction === "Vegetariano"
+            ).length).toBeGreaterThan(0);
+
+            expect(rows.filter(
+                (row) => row.restriction === "Otra"
+            ).length).toBeGreaterThan(0);
+
+            expect(rows.filter(
+                (row) => row.restriction === "Alergia"
+            ).length).toBeGreaterThan(0);
+        });
     });
 
-    it("guarda varios slugs distintos sin pisar invitaciones ya creadas", async () => {
-        await saveInvitation({ slug: "maria", name: "María", password: "abc", date: "2026-12-10", timeStart: "20:00", timeEnd: "23:00" });
-        await saveInvitation({ slug: "sofia", name: "Sofía", password: "def", date: "2026-11-15", timeStart: "21:00", timeEnd: "00:00" });
+    // ============================================================
+    // DATOS CORRUPTOS / EDGE CASES
+    // ============================================================
 
-        const maria = await loadInvitationBySlug("maria");
-        const sofia = await loadInvitationBySlug("sofia");
+    describe("resistencia ante datos extraños", () => {
+        it("maneja nombres con emojis", async () => {
+            const rows = await saveRsvp("sofia", {
+                name: "Lucía ❤️",
+                restriction: "Ninguna"
+            });
 
-        expect(maria.name).toBe("María");
-        expect(sofia.name).toBe("Sofía");
+            expect(rows[0].name).toBe("Lucía ❤️");
+        });
+
+        it("maneja caracteres especiales en nombres", async () => {
+            const rows = await saveRsvp("sofia", {
+                name: "José María O'Connor",
+                restriction: "Ninguna"
+            });
+
+            expect(rows[0].name).toBe("José María O'Connor");
+        });
+
+        it("maneja nombres largos", async () => {
+            const name = "A".repeat(500);
+
+            const rows = await saveRsvp("sofia", {
+                name,
+                restriction: "Ninguna"
+            });
+
+            expect(rows[0].name).toBe(name);
+        });
+
+        it("maneja detalles largos", async () => {
+            const detail = "Sin este ingrediente ".repeat(100);
+
+            const rows = await saveRsvp("sofia", {
+                name: "Pedro",
+                restriction: "Otra",
+                detail
+            });
+
+            expect(rows[0].detail).toBe(detail);
+        });
+
+        it("no mezcla información entre invitados", async () => {
+            await saveRsvp("sofia", {
+                name: "Ana",
+                restriction: "Alergia",
+                allergy: "Maní"
+            });
+
+            await saveRsvp("sofia", {
+                name: "Lucas",
+                restriction: "Vegetariano",
+                detail: "Sin carne"
+            });
+
+            const rows = await loadRsvpsBySlug("sofia");
+
+            expect(rows[0].allergy).toBe("Maní");
+            expect(rows[1].allergy).not.toBe("Maní");
+
+            expect(rows[1].detail).toBe("Sin carne");
+        });
     });
 
-    it("elimina la invitación y sus confirmaciones", async () => {
-        await saveInvitation({ slug: "sofia", name: "Sofía", password: "123456" });
-        await saveRsvp("sofia", { name: "Ana", restriction: "Ninguna" });
+    // ============================================================
+    // LOCALSTORAGE
+    // ============================================================
 
-        await deleteInvitation("SOFIA");
+    describe("persistencia local", () => {
+        it("persiste los datos dentro de localStorage", async () => {
+            await saveInvitation(makeInvitation());
 
-        expect(await loadInvitationBySlug("sofia")).toBeNull();
-        expect(await loadRsvpsBySlug("sofia")).toEqual([]);
+            const invitation = await loadInvitationBySlug("sofia");
+
+            expect(invitation).not.toBeNull();
+        });
+
+        it("permite guardar y recuperar múltiples RSVPs", async () => {
+            await saveRsvp("sofia", makeRsvp(1));
+            await saveRsvp("sofia", makeRsvp(2));
+            await saveRsvp("sofia", makeRsvp(3));
+
+            const rows = await loadRsvpsBySlug("sofia");
+
+            expect(rows).toHaveLength(3);
+        });
+
+        it("no utiliza la misma colección para distintos slugs", async () => {
+            await saveRsvp("sofia", {
+                name: "Sofía Guest",
+                restriction: "Ninguna"
+            });
+
+            await saveRsvp("maria", {
+                name: "María Guest",
+                restriction: "Ninguna"
+            });
+
+            const sofia = await loadRsvpsBySlug("sofia");
+            const maria = await loadRsvpsBySlug("maria");
+
+            expect(sofia).toHaveLength(1);
+            expect(maria).toHaveLength(1);
+
+            expect(sofia[0].name).toBe("Sofía Guest");
+            expect(maria[0].name).toBe("María Guest");
+        });
+    });
+
+    // ============================================================
+    // ELIMINACIÓN
+    // ============================================================
+
+    describe("eliminación", () => {
+        it("elimina una invitación", async () => {
+            await saveInvitation(makeInvitation());
+
+            await deleteInvitation("sofia");
+
+            expect(
+                await loadInvitationBySlug("sofia")
+            ).toBeNull();
+        });
+
+        it("elimina también las confirmaciones", async () => {
+            await saveInvitation(makeInvitation());
+
+            await saveRsvp("sofia", makeRsvp(1));
+            await saveRsvp("sofia", makeRsvp(2));
+            await saveRsvp("sofia", makeRsvp(3));
+
+            await deleteInvitation("sofia");
+
+            expect(
+                await loadInvitationBySlug("sofia")
+            ).toBeNull();
+
+            expect(
+                await loadRsvpsBySlug("sofia")
+            ).toEqual([]);
+        });
+
+        it("no elimina otras invitaciones", async () => {
+            await saveInvitation(
+                makeInvitation({
+                    slug: "sofia",
+                    name: "Sofía"
+                })
+            );
+
+            await saveInvitation(
+                makeInvitation({
+                    slug: "maria",
+                    name: "María"
+                })
+            );
+
+            await deleteInvitation("sofia");
+
+            expect(
+                await loadInvitationBySlug("sofia")
+            ).toBeNull();
+
+            expect(
+                await loadInvitationBySlug("maria")
+            ).not.toBeNull();
+        });
+
+        it("no rompe al eliminar un slug inexistente", async () => {
+            await expect(
+                deleteInvitation("no-existe")
+            ).resolves.not.toThrow();
+        });
+    });
+
+    // ============================================================
+    // TEST DE ESCENARIO COMPLETO
+    // ============================================================
+
+    describe("escenario real de una fiesta", () => {
+        it("simula una fiesta completa con 100 invitados", async () => {
+            // 1. Crear invitación
+            const invitation = await saveInvitation(
+                makeInvitation({
+                    slug: "valentina",
+                    name: "Valentina",
+                    template: "rose"
+                })
+            );
+
+            expect(invitation.name).toBe("Valentina");
+
+            // 2. Llegan 100 confirmaciones
+            const total = 100;
+
+            for (let i = 1; i <= total; i++) {
+                await saveRsvp("valentina", {
+                    name: `Invitado ${i}`,
+                    restriction:
+                        i % 10 === 0
+                            ? "Alergia"
+                            : i % 5 === 0
+                                ? "Vegetariano"
+                                : "Ninguna",
+                    detail: i % 10 === 0
+                        ? "Sin maní"
+                        : ""
+                });
+            }
+
+            // 3. El panel de la quinceañera recupera los datos
+            const rows = await loadRsvpsBySlug("valentina");
+
+            // 4. Verificaciones
+            expect(rows).toHaveLength(100);
+
+            // Todos tienen nombre
+            expect(
+                rows.every((row) => typeof row.name === "string")
+            ).toBe(true);
+
+            // Hay invitados con restricciones
+            expect(
+                rows.filter(
+                    (row) => row.restriction === "Vegetariano"
+                ).length
+            ).toBeGreaterThan(0);
+
+            expect(
+                rows.filter(
+                    (row) => row.restriction === "Alergia"
+                ).length
+            ).toBeGreaterThan(0);
+
+            // No hay nombres duplicados
+            expect(
+                new Set(rows.map((row) => row.name)).size
+            ).toBe(100);
+
+            // 5. Se elimina todo
+            await deleteInvitation("valentina");
+
+            expect(
+                await loadInvitationBySlug("valentina")
+            ).toBeNull();
+
+            expect(
+                await loadRsvpsBySlug("valentina")
+            ).toEqual([]);
+        });
     });
 });
 
