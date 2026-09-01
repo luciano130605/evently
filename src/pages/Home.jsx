@@ -29,7 +29,7 @@ export default function Home({ theme, onToggleTheme }) {
 
                 <div className="home-header-actions">
                     <Link
-                        to="/invitacion/sofia"
+                        to="/invitacion/demo"
                         className="header-demo"
                     >
                         Ver demo

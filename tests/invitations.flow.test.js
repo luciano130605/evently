@@ -350,6 +350,40 @@ describe("Invitaciones XV - suite completa", () => {
             });
         });
 
+        it("no permite dos confirmaciones con el mismo nombre y apellido", async () => {
+            await saveRsvp("sofia", {
+                firstName: "Lucía",
+                lastName: "Pérez",
+                restriction: "Ninguna"
+            });
+
+            await expect(saveRsvp("sofia", {
+                firstName: "Lucía",
+                lastName: "Pérez",
+                restriction: "Vegetariano"
+            })).rejects.toThrow("Ya existe una confirmación de asistencia con ese mismo nombre y apellido.");
+        });
+
+        it("permite repetir nombre o apellido por separado, pero no el par completo", async () => {
+            await saveRsvp("sofia", {
+                firstName: "Lucía",
+                lastName: "Pérez",
+                restriction: "Ninguna"
+            });
+
+            await expect(saveRsvp("sofia", {
+                firstName: "Lucía",
+                lastName: "García",
+                restriction: "Vegetariano"
+            })).resolves.toBeTruthy();
+
+            await expect(saveRsvp("sofia", {
+                firstName: "Ana",
+                lastName: "Pérez",
+                restriction: "Vegano"
+            })).resolves.toBeTruthy();
+        });
+
         it("permite restricciones diferentes", async () => {
             await saveRsvp("sofia", {
                 name: "Ana",

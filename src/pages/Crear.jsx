@@ -16,10 +16,10 @@ import {
 import {
     demoInvitation
 } from "../data/demoInvitation";
-import { loadInvitationBySlug, saveInvitation, slugify } from "../lib/invitations";
+import { loadInvitationBySlug, saveInvitation, slugify, splitNameParts } from "../lib/invitations";
 
 export const requiredFields = [
-    ["name", "Nombre de la quinceañera"],
+    ["firstName", "Nombre"],
     ["password", "Contraseña de administración"],
     ["date", "Fecha"],
     ["timeStart", "Desde"],
@@ -31,8 +31,18 @@ export const requiredFields = [
     ["dressColorsNotAllowed", "Colores que no se pueden usar"]
 ];
 
-export const isRequiredFormComplete = (formData = {}) =>
-    requiredFields.every(([field]) => String(formData[field] ?? "").trim().length > 0);
+export const isRequiredFormComplete = (formData = {}) => {
+    const hasFirstName = String(formData.firstName ?? "").trim().length > 0;
+    const hasLegacyName = !hasFirstName && String(formData.name ?? "").trim().length > 0;
+
+    if (hasLegacyName) {
+        return requiredFields
+            .filter(([field]) => field !== "firstName")
+            .every(([field]) => String(formData[field] ?? "").trim().length > 0);
+    }
+
+    return requiredFields.every(([field]) => String(formData[field] ?? "").trim().length > 0);
+};
 
 export default function Crear() {
 
@@ -45,13 +55,17 @@ export default function Crear() {
         useState({
             ...demoInvitation,
 
+            firstName: "",
+            lastName: "",
             name: "",
 
             slug: "",
 
             password: "",
 
-            heroImage: ""
+            heroImage: "",
+            isOver18: true,
+            googlePhotosUrl: demoInvitation.googlePhotosUrl
         });
     const [saveError, setSaveError] = useState("");
     const [saving, setSaving] = useState(false);
@@ -71,7 +85,15 @@ export default function Crear() {
             const invitation = await loadInvitationBySlug(editSlug);
 
             if (active && invitation) {
-                setForm((previous) => ({ ...previous, ...invitation }));
+                const parsed = splitNameParts(invitation.name || "");
+                setForm((previous) => ({
+                    ...previous,
+                    ...invitation,
+                    firstName: invitation.firstName || parsed.firstName,
+                    lastName: invitation.lastName || parsed.lastName,
+                    isOver18: invitation.isOver18 ?? true,
+                    googlePhotosUrl: invitation.googlePhotosUrl || demoInvitation.googlePhotosUrl
+                }));
             }
 
             if (active) {
@@ -153,8 +175,9 @@ export default function Crear() {
     };
 
     const generateSlug = () => {
+        const nameToUse = form.firstName || form.name || "";
 
-        return form.name
+        return nameToUse
             .toLowerCase()
             .normalize("NFD")
             .replace(
@@ -182,14 +205,17 @@ export default function Crear() {
             return;
         }
 
+        const fullName = (form.firstName || form.name || "").trim();
+
+        if (!fullName) {
+            setSaveError("Completá el nombre.");
+            return;
+        }
+
         const slug = slugify(
             form.slug.trim() ||
             generateSlug()
         );
-
-        if (!form.name.trim()) {
-            return;
-        }
 
         setSaving(true);
         setSaveError("");
@@ -197,6 +223,7 @@ export default function Crear() {
         try {
             const savedInvitation = await saveInvitation({
                 ...form,
+                name: fullName,
                 slug,
                 heroImage:
                     form.heroImage ||
@@ -287,20 +314,19 @@ export default function Crear() {
 
                         <label>
                             <div>
-                                Nombre de la quinceañera <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                                Nombre <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
                             </div>
                             <input
-                                value={form.name}
+                                value={form.firstName || ""}
                                 onChange={(event) =>
                                     update(
-                                        "name",
+                                        "firstName",
                                         event.target.value
                                     )
                                 }
                                 placeholder="Sofía"
                                 required
                             />
-
                         </label>
 
 
@@ -385,7 +411,7 @@ export default function Crear() {
                             </div>
                             <input
                                 type="date"
-                                placeholder={form.date || ""}
+                                value={form.date || ""}
                                 onChange={(event) =>
                                     update(
                                         "date",
@@ -458,8 +484,7 @@ export default function Crear() {
                                 Nombre del salón <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
                             </div>
                             <input
-
-                                placeholder={form.venue || ""}
+                                value={form.venue || ""}
                                 onChange={(event) =>
                                     update(
                                         "venue",
@@ -537,8 +562,7 @@ export default function Crear() {
                                 Tipo de dress code <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
                             </div>
                             <input
-
-                                placeholder={form.dressCode || ""}
+                                value={form.dressCode || ""}
                                 onChange={(event) =>
                                     update(
                                         "dressCode",
@@ -555,6 +579,7 @@ export default function Crear() {
                             Descripción
 
                             <textarea
+                                value={form.dressDescription || ""}
                                 placeholder={""}
                                 onChange={(event) =>
                                     update(
@@ -572,7 +597,7 @@ export default function Crear() {
                                 Colores que no se pueden usar <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
                             </div>
                             <input
-                                placeholder={form.dressColorsNotAllowed || ""}
+                                value={form.dressColorsNotAllowed || ""}
                                 onChange={(event) =>
                                     update(
                                         "dressColorsNotAllowed",
@@ -594,7 +619,32 @@ export default function Crear() {
                     <fieldset>
 
                         <legend>
-                            05 · REGALOS
+                            05 · FOTOS
+                        </legend>
+
+                        
+
+                        <label>
+                            Álbum de Google Fotos 
+
+                            <input
+                                value={form.googlePhotosUrl || ""}
+                                onChange={(event) => update("googlePhotosUrl", event.target.value.trim())}
+                                placeholder="https://photos.google.com/share/..."
+                            />
+
+                            <small>
+                                Si lo agregás, se mostrará un botón en la invitación para abrir el álbum.
+                            </small>
+                        </label>
+
+                    </fieldset>
+
+
+                    <fieldset>
+
+                        <legend>
+                            06 · REGALOS
                         </legend>
 
                         <label>
@@ -602,6 +652,7 @@ export default function Crear() {
                             Alias
 
                             <input
+                                value={form.alias || ""}
                                 placeholder={form.alias || ""}
                                 onChange={(event) =>
                                     update(
@@ -618,6 +669,7 @@ export default function Crear() {
                             CBU
 
                             <input
+                                value={form.cbu || ""}
                                 placeholder={form.cbu || ""}
                                 onChange={(event) =>
                                     update(
@@ -634,7 +686,7 @@ export default function Crear() {
 
                     <fieldset>
                         <legend>
-                            06 · DISEÑO
+                            07 · DISEÑO
                         </legend>
 
                         <div className="design-intro">

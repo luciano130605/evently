@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import ThemeToggle from "../components/ThemeToggle";
 
 import {
+    Alert02Icon,
     BeefOffFreeIcons,
     CopyCheck,
     CopyCheckIcon,
@@ -457,7 +458,7 @@ export default function Admin({ theme, onToggleTheme }) {
                         aria-modal="true"
                         aria-labelledby="delete-title"
                     >
-                        <div className="delete-modal-mark">!</div>
+                        <div className="delete-modal-mark"><HugeiconsIcon icon={Alert02Icon} size={14} /></div>
 
                         <span className="section-kicker">
                             ACCIÓN IRREVERSIBLE
@@ -572,6 +573,9 @@ export default function Admin({ theme, onToggleTheme }) {
                                 <div>
                                     <strong>{rsvp.name}</strong>
                                     <span>{rsvp.restriction}</span>
+                                    <small className="rsvp-age-status">
+                                        {rsvp.isOver18 === false ? "Menor de 18" : "Mayor de 18"}
+                                    </small>
                                     {rsvp.restriction === "Alergia" && rsvp.allergy && (
                                         <small className="rsvp-allergy">
                                             Alergia: {rsvp.allergy}

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import Countdown from "../components/Countdown";
@@ -163,6 +163,17 @@ export default function Invitacion() {
         }
     };
 
+    const scrollToCountdown = () => {
+        const target = document.getElementById("countdown-section");
+
+        if (target) {
+            target.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    };
+
     if (isLoading) {
         return <main className="center-page"><h1>Cargando invitación...</h1></main>;
     }
@@ -202,16 +213,26 @@ export default function Invitacion() {
                         {invitation.timeStart || invitation.time || "21:00"} — {invitation.timeEnd || "23:00"} hs
                     </div>
 
+
+
                     <button className="calendar-button" onClick={addToCalendar}>
                         <HugeiconsIcon icon={Calendar02Icon} size={17} />
                         Guardar fecha
                     </button>
 
-                    <HugeiconsIcon icon={ChevronDown} className="cover-arrow" size={20} />
+                    <button
+                        type="button"
+                        className="cover-arrow-button"
+                        aria-label="Ir a cuánto falta"
+                        onClick={scrollToCountdown}
+                    >
+                        <HugeiconsIcon icon={ChevronDown} className="cover-arrow" size={20} />
+                    </button>
                 </div>
             </section>
 
             <Countdown
+                id="countdown-section"
                 date={invitation.date}
                 timeStart={invitation.timeStart || invitation.time || "21:00"}
                 timeEnd={invitation.timeEnd || "23:00"}
@@ -248,7 +269,6 @@ export default function Invitacion() {
 
             <section className="dress-section">
                 <div className="dress-content">
-                    <HugeiconsIcon icon={TieIcon} size={22} />
                     <span className="section-kicker">DRESS CODE</span>
                     <h2>{invitation.dressCode || "Elegante"}</h2>
                     <p>{invitation.dressDescription || "Elegí tu mejor look para acompañarnos."}</p>
@@ -260,6 +280,33 @@ export default function Invitacion() {
                     )}
                 </div>
             </section>
+
+            {invitation.googlePhotosUrl && (
+                <section className="invitation-section photo-album-section">
+                    <div className="section-content">
+                        <span className="section-kicker">ÁLBUM DE FOTOS</span>
+                        <h2>Reviví este momento</h2>
+                        <p>
+                            Sumá fotos de la fiesta, de los momentos más lindos y de esta noche inolvidable.
+                        </p>
+
+                        <a
+                            href={invitation.googlePhotosUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="secondary-button photo-album-button"
+                            onClick={(event) => {
+                                if (!invitation.googlePhotosUrl) {
+                                    event.preventDefault();
+                                }
+                            }}
+                        >
+                            Ver álbum
+                        </a>
+                    </div>
+                </section>
+            )
+            }
 
             <section className="rsvp-section">
                 <div className="rsvp-card">
@@ -278,11 +325,23 @@ export default function Invitacion() {
                 text={"Lo más importante es compartir este momento con vos. Si además querés hacerme un regalo, podés hacerlo por estos medios."}
             />
 
+            <section className="invitation-cta">
+
+
+
+            </section>
+
             <footer className="invitation-footer">
                 <span>XV</span>
                 <p>Gracias por ser parte de este momento.</p>
                 <small>{invitation.name} · Mis 15 años</small>
+
+                <div className="button-crear">
+                    <Link to="/" className="home-secondary">
+                        Crear la tuya
+                    </Link>
+                </div>
             </footer>
-        </main>
+        </main >
     );
 }

@@ -101,6 +101,7 @@ function createICS({
 }
 
 export default function Countdown({
+    id,
     date,
     timeStart,
     timeEnd
@@ -156,7 +157,7 @@ export default function Countdown({
     };
 
     return (
-        <section className="countdown-section">
+        <section id={id} className="countdown-section">
 
             <div className="section-heading">
                 <span className="section-kicker">

@@ -43,9 +43,6 @@ export default function GiftSection({
     return (
         <section className="gift-section">
 
-            <div className="gift-icon">
-                <HugeiconsIcon icon={GiftIcon} size={20} />
-            </div>
 
             <span className="section-kicker">
                 SI QUERÉS HACERME UN REGALO

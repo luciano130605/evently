@@ -23,6 +23,10 @@ export const demoInvitation = {
 
     dressColorsNotAllowed: "Blanco",
 
+    isOver18: true,
+
+    googlePhotosUrl: "https://photos.google.com/u/0/albums?hl=es&pli=1",
+
     alias: "alias",
 
     cbu: "0000000000000000000000",

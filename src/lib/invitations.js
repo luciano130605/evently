@@ -14,22 +14,58 @@ export function slugify(value = "") {
         .replace(/(^-|-$)/g, "");
 }
 
+export function normalizeText(value = "") {
+    return String(value || "")
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+}
+
+export function normalizePersonName(value = "") {
+    return normalizeText(String(value || "").replace(/\s+/g, " ").trim());
+}
+
+export function splitNameParts(value = "") {
+    const text = String(value || "").trim();
+
+    if (!text) {
+        return { firstName: "", lastName: "" };
+    }
+
+    const pieces = text.split(/\s+/).filter(Boolean);
+
+    if (pieces.length === 1) {
+        return { firstName: pieces[0], lastName: "" };
+    }
+
+    return {
+        firstName: pieces[0],
+        lastName: pieces.slice(1).join(" ")
+    };
+}
+
 export function normalizeInvitation(input = {}) {
     const source = {
         ...demoInvitation,
         ...input
     };
 
-    const slug = slugify(String(source.slug || "") || source.name);
+    const parsedName = splitNameParts(String(source.name || ""));
+    const firstName = String(source.firstName || source.first_name || "").trim() || parsedName.firstName;
+    const lastName = String(source.lastName || source.last_name || "").trim() || parsedName.lastName;
+    const slug = slugify(String(source.slug || "") || [firstName, lastName].filter(Boolean).join(" ") || source.name);
     const timeStart = source.timeStart || source.time || "21:00";
     const timeEnd = source.timeEnd || "23:00";
-    const name = String(source.name || "").trim() || demoInvitation.name;
+    const fullName = [firstName, lastName].filter(Boolean).join(" ").trim() || String(source.name || "").trim() || demoInvitation.name;
 
     return {
         ...demoInvitation,
         ...source,
         slug,
-        name,
+        name: fullName,
+        firstName,
+        lastName,
         password: String(source.password || ""),
         subtitle: source.subtitle || "Mis 15 años",
         date: source.date || demoInvitation.date,
@@ -42,6 +78,8 @@ export function normalizeInvitation(input = {}) {
         dressCode: source.dressCode || "",
         dressDescription: source.dressDescription || "",
         dressColorsNotAllowed: source.dressColorsNotAllowed || "",
+        isOver18: source.isOver18 !== undefined ? Boolean(source.isOver18) : Boolean(demoInvitation.isOver18),
+        googlePhotosUrl: source.googlePhotosUrl || source.googlePhotos || demoInvitation.googlePhotosUrl,
         alias: source.alias || "",
         cbu: source.cbu || "",
         giftText: source.giftText || demoInvitation.giftText,
@@ -106,6 +144,8 @@ function invitationFromDatabase(row) {
         dressCode: row.dress_code || row.dressCode,
         dressDescription: row.dress_description || row.dressDescription,
         dressColorsNotAllowed: row.dress_colors_not_allowed || row.dressColorsNotAllowed,
+        isOver18: row.is_over_18 ?? row.isOver18 ?? true,
+        googlePhotosUrl: row.google_photos_url || row.googlePhotosUrl || "",
         mapsUrl: row.maps_url || row.mapsUrl,
         giftText: row.gift_text || row.giftText,
         heroImage: row.hero_image || row.heroImage,
@@ -129,6 +169,8 @@ function invitationToDatabase(invitation) {
         dress_code: invitation.dressCode,
         dress_description: invitation.dressDescription,
         dress_colors_not_allowed: invitation.dressColorsNotAllowed,
+        is_over_18: invitation.isOver18,
+        google_photos_url: invitation.googlePhotosUrl,
         alias: invitation.alias,
         cbu: invitation.cbu,
         gift_text: invitation.giftText,
@@ -166,9 +208,57 @@ export async function loadInvitationBySlug(slug) {
     return invitations[safeSlug] ? normalizeInvitation(invitations[safeSlug]) : null;
 }
 
+export async function hasDuplicateInvitationName(firstName = "", lastName = "", excludeSlug = "") {
+    const normalizedFirst = normalizeText(firstName);
+    const normalizedLast = normalizeText(lastName);
+
+    if (!normalizedFirst || !normalizedLast) {
+        return false;
+    }
+
+    const records = [];
+
+    if (hasSupabaseConfig && supabase) {
+        const { data, error } = await supabase
+            .from("invitations")
+            .select("slug, name")
+            .neq("slug", slugify(String(excludeSlug || "")));
+
+        if (!error && data) {
+            records.push(...data);
+        }
+    }
+
+    const localInvitations = readLocalInvitations();
+    records.push(...Object.values(localInvitations));
+
+    return records.some((item) => {
+        const currentSlug = slugify(String(item.slug || ""));
+
+        if (currentSlug === slugify(String(excludeSlug || ""))) {
+            return false;
+        }
+
+        const currentName = String(item.name || "");
+        const parts = splitNameParts(currentName);
+
+        return normalizeText(parts.firstName) === normalizedFirst && normalizeText(parts.lastName) === normalizedLast;
+    });
+}
+
 export async function saveInvitation(invitation) {
     const normalized = normalizeInvitation(invitation);
     normalized.slug = slugify(normalized.slug);
+
+    const duplicate = await hasDuplicateInvitationName(
+        normalized.firstName,
+        normalized.lastName,
+        normalized.slug
+    );
+
+    if (duplicate) {
+        throw new Error("Ya existe una invitación con ese mismo nombre y apellido.");
+    }
 
     if (hasSupabaseConfig && supabase) {
         const { data, error } = await supabase
@@ -254,19 +344,73 @@ export async function loadRsvpsBySlug(slug) {
     return readLocalRsvps(safeSlug);
 }
 
+export async function hasDuplicateRsvpName(slug, payload = {}) {
+    const safeSlug = slugify(String(slug || ""));
+    const firstName = String(payload.firstName ?? payload.first_name ?? "").trim();
+    const lastName = String(payload.lastName ?? payload.last_name ?? "").trim();
+    const fullName = String(payload.name ?? "").trim();
+    const normalizedFirst = normalizePersonName(firstName || splitNameParts(fullName).firstName);
+    const normalizedLast = normalizePersonName(lastName || splitNameParts(fullName).lastName);
+
+    if (!safeSlug || !normalizedFirst || !normalizedLast) {
+        return false;
+    }
+
+    const records = [];
+
+    if (hasSupabaseConfig && supabase) {
+        const { data, error } = await supabase
+            .from("rsvps")
+            .select("name")
+            .eq("slug", safeSlug);
+
+        if (!error && data) {
+            records.push(...data);
+        }
+    }
+
+    records.push(...readLocalRsvps(safeSlug));
+
+    return records.some((item) => {
+        const currentName = String(item.name || "").trim();
+        const currentParts = splitNameParts(currentName);
+        const currentFirst = normalizePersonName(currentParts.firstName || currentName);
+        const currentLast = normalizePersonName(currentParts.lastName || "");
+
+        return currentFirst === normalizedFirst && currentLast === normalizedLast;
+    });
+}
+
 export async function saveRsvp(slug, payload) {
     const safeSlug = slugify(String(slug || ""));
+    const firstName = String(payload.firstName ?? payload.first_name ?? "").trim();
+    const lastName = String(payload.lastName ?? payload.last_name ?? "").trim();
+    const nameFromLegacy = String(payload.name || "").trim();
+    const fullName = [firstName || splitNameParts(nameFromLegacy).firstName, lastName || splitNameParts(nameFromLegacy).lastName].filter(Boolean).join(" ").trim() || nameFromLegacy;
     const row = {
-        name: String(payload.name || "").trim(),
+        firstName,
+        lastName,
+        name: fullName,
         restriction: payload.restriction || "Ninguna",
         allergy: String(payload.allergy || "").trim(),
         detail: payload.detail || "",
+        isOver18: payload.isOver18 !== undefined ? Boolean(payload.isOver18) : true,
         createdAt: new Date().toISOString(),
         created_at: new Date().toISOString()
     };
 
     if (!safeSlug || !row.name) {
         return [];
+    }
+
+    const duplicate = await hasDuplicateRsvpName(safeSlug, {
+        firstName: row.firstName,
+        lastName: row.lastName,
+        name: row.name
+    });
+
+    if (duplicate) {
+        throw new Error("Ya existe una confirmación de asistencia con ese mismo nombre y apellido.");
     }
 
     if (hasSupabaseConfig && supabase) {
@@ -277,6 +421,7 @@ export async function saveRsvp(slug, payload) {
                 restriction: row.restriction,
                 allergy: row.allergy,
                 detail: row.detail,
+                is_over_18: row.isOver18,
                 created_at: row.created_at
             }
         ]);
