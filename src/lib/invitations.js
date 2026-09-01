@@ -1,0 +1,299 @@
+import { demoInvitation } from "../data/demoInvitation";
+import { hasSupabaseConfig, supabase } from "./supabase";
+
+const INVITATIONS_KEY = "mis15_invitations";
+const RSVPS_KEY_PREFIX = "rsvps_";
+
+export function slugify(value = "") {
+    return String(value)
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "") || "invitacion";
+}
+
+export function normalizeInvitation(input = {}) {
+    const source = {
+        ...demoInvitation,
+        ...input
+    };
+
+    const slug = slugify(String(source.slug || "") || source.name);
+    const timeStart = source.timeStart || source.time || "21:00";
+    const timeEnd = source.timeEnd || "23:00";
+    const name = String(source.name || "").trim() || demoInvitation.name;
+
+    return {
+        ...demoInvitation,
+        ...source,
+        slug,
+        name,
+        password: String(source.password || ""),
+        subtitle: source.subtitle || "Mis 15 años",
+        date: source.date || demoInvitation.date,
+        time: timeStart,
+        timeStart,
+        timeEnd,
+        venue: source.venue || "",
+        address: source.address || "",
+        mapsUrl: source.mapsUrl || "",
+        dressCode: source.dressCode || "",
+        dressDescription: source.dressDescription || "",
+        dressColorsNotAllowed: source.dressColorsNotAllowed || "",
+        alias: source.alias || "",
+        cbu: source.cbu || "",
+        giftText: source.giftText || demoInvitation.giftText,
+        heroImage: source.heroImage || demoInvitation.heroImage,
+        template: source.template || demoInvitation.template,
+        createdAt: source.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    };
+}
+
+function readLocalInvitations() {
+    if (typeof window === "undefined") {
+        return {};
+    }
+
+    try {
+        const value = window.localStorage.getItem(INVITATIONS_KEY);
+        return value ? JSON.parse(value) : {};
+    } catch {
+        return {};
+    }
+}
+
+function writeLocalInvitations(invitations) {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    window.localStorage.setItem(INVITATIONS_KEY, JSON.stringify(invitations));
+}
+
+function readLocalRsvps(slug) {
+    if (typeof window === "undefined") {
+        return [];
+    }
+
+    try {
+        const value = window.localStorage.getItem(`${RSVPS_KEY_PREFIX}${slug}`);
+        return value ? JSON.parse(value) : [];
+    } catch {
+        return [];
+    }
+}
+
+function writeLocalRsvps(slug, rows) {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    window.localStorage.setItem(`${RSVPS_KEY_PREFIX}${slug}`, JSON.stringify(rows));
+}
+
+function invitationFromDatabase(row) {
+    if (!row) {
+        return null;
+    }
+
+    return normalizeInvitation({
+        ...row,
+        timeStart: row.time_start || row.timeStart,
+        timeEnd: row.time_end || row.timeEnd,
+        dressCode: row.dress_code || row.dressCode,
+        dressDescription: row.dress_description || row.dressDescription,
+        dressColorsNotAllowed: row.dress_colors_not_allowed || row.dressColorsNotAllowed,
+        mapsUrl: row.maps_url || row.mapsUrl,
+        giftText: row.gift_text || row.giftText,
+        heroImage: row.hero_image || row.heroImage,
+        createdAt: row.created_at || row.createdAt,
+        updatedAt: row.updated_at || row.updatedAt
+    });
+}
+
+function invitationToDatabase(invitation) {
+    return {
+        slug: invitation.slug,
+        name: invitation.name,
+        password: invitation.password,
+        subtitle: invitation.subtitle,
+        date: invitation.date,
+        time_start: invitation.timeStart,
+        time_end: invitation.timeEnd,
+        venue: invitation.venue,
+        address: invitation.address,
+        maps_url: invitation.mapsUrl,
+        dress_code: invitation.dressCode,
+        dress_description: invitation.dressDescription,
+        dress_colors_not_allowed: invitation.dressColorsNotAllowed,
+        alias: invitation.alias,
+        cbu: invitation.cbu,
+        gift_text: invitation.giftText,
+        hero_image: invitation.heroImage,
+        template: invitation.template,
+        created_at: invitation.createdAt,
+        updated_at: invitation.updatedAt
+    };
+}
+
+export async function loadInvitationBySlug(slug) {
+    const safeSlug = slugify(String(slug || ""));
+
+    if (!safeSlug || safeSlug === "invitacion") {
+        return null;
+    }
+
+    if (hasSupabaseConfig && supabase) {
+        const { data, error } = await supabase
+            .from("invitations")
+            .select("*")
+            .eq("slug", safeSlug)
+            .maybeSingle();
+
+        if (error && error.code !== "PGRST116") {
+            console.error("Error loading invitation from Supabase:", error);
+        }
+
+        if (data) {
+            return invitationFromDatabase(data);
+        }
+    }
+
+    const invitations = readLocalInvitations();
+    return invitations[safeSlug] ? normalizeInvitation(invitations[safeSlug]) : null;
+}
+
+export async function saveInvitation(invitation) {
+    const normalized = normalizeInvitation(invitation);
+    normalized.slug = slugify(normalized.slug);
+
+    if (hasSupabaseConfig && supabase) {
+        const { data, error } = await supabase
+            .from("invitations")
+            .upsert(
+                invitationToDatabase(normalized),
+                { onConflict: "slug" }
+            )
+            .select()
+            .single();
+
+        if (error) {
+            console.error("Error saving invitation to Supabase:", error);
+            throw new Error("No se pudo guardar la invitación en Supabase. Verificá las tablas y permisos.");
+        } else if (data) {
+            const record = invitationFromDatabase(data);
+            const localInvitations = readLocalInvitations();
+            localInvitations[record.slug] = record;
+            writeLocalInvitations(localInvitations);
+            return record;
+        }
+    }
+
+    const localInvitations = readLocalInvitations();
+    localInvitations[normalized.slug] = normalized;
+    writeLocalInvitations(localInvitations);
+
+    return normalized;
+}
+
+export async function deleteInvitation(slug) {
+    const safeSlug = slugify(String(slug || ""));
+
+    if (!safeSlug || safeSlug === "invitacion") {
+        throw new Error("La invitación no es válida.");
+    }
+
+    if (hasSupabaseConfig && supabase) {
+        const { error } = await supabase
+            .from("invitations")
+            .delete()
+            .eq("slug", safeSlug);
+
+        if (error) {
+            console.error("Error deleting invitation from Supabase:", error);
+            throw new Error("No se pudo eliminar la invitación de Supabase. Verificá las tablas y permisos.");
+        }
+    }
+
+    const invitations = readLocalInvitations();
+    delete invitations[safeSlug];
+    writeLocalInvitations(invitations);
+
+    if (typeof window !== "undefined") {
+        window.localStorage.removeItem(`${RSVPS_KEY_PREFIX}${safeSlug}`);
+    }
+}
+
+export async function loadRsvpsBySlug(slug) {
+    const safeSlug = slugify(String(slug || ""));
+
+    if (!safeSlug || safeSlug === "invitacion") {
+        return [];
+    }
+
+    if (hasSupabaseConfig && supabase) {
+        const { data, error } = await supabase
+            .from("rsvps")
+            .select("*")
+            .eq("slug", safeSlug)
+            .order("created_at", { ascending: true });
+
+        if (error) {
+            console.error("Error loading RSVPs from Supabase:", error);
+        } else if (data) {
+            return data.map((item) => ({
+                ...item,
+                createdAt: item.created_at || item.createdAt || new Date().toISOString()
+            }));
+        }
+    }
+
+    return readLocalRsvps(safeSlug);
+}
+
+export async function saveRsvp(slug, payload) {
+    const safeSlug = slugify(String(slug || ""));
+    const row = {
+        name: String(payload.name || "").trim(),
+        restriction: payload.restriction || "Ninguna",
+        allergy: String(payload.allergy || "").trim(),
+        detail: payload.detail || "",
+        createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString()
+    };
+
+    if (!safeSlug || !row.name) {
+        return [];
+    }
+
+    if (hasSupabaseConfig && supabase) {
+        const { error } = await supabase.from("rsvps").insert([
+            {
+                slug: safeSlug,
+                name: row.name,
+                restriction: row.restriction,
+                allergy: row.allergy,
+                detail: row.detail,
+                created_at: row.created_at
+            }
+        ]);
+
+        if (error) {
+            console.error("Error saving RSVP to Supabase:", error);
+        }
+    }
+
+    const localRsvps = readLocalRsvps(safeSlug);
+    localRsvps.push(row);
+    writeLocalRsvps(safeSlug, localRsvps);
+
+    return localRsvps;
+}
+
+export function getLocalInvitationFallback(slug) {
+    const invitations = readLocalInvitations();
+    return invitations[slug] || demoInvitation;
+}
