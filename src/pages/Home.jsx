@@ -65,9 +65,7 @@ export default function Home({ theme, onToggleTheme }) {
                     </h1>
 
                     <p>
-                        Creá una invitación de 15
-                        elegante, moderna y hecha
-                        para compartir.
+                        Creá una invitación de 15 única y recibí las confirmaciones de tus invitados en un solo lugar.
                     </p>
 
                     <div className="home-actions">

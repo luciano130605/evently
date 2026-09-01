@@ -187,7 +187,7 @@ export default function Invitacion() {
                     <div className="cover-xv">XV</div>
 
                     <h1>{invitation.name}</h1>
-                    <p>{invitation.subtitle || "Mis 15 años"}</p>
+                    <p>{"Mis 15"}</p>
 
                     <div className="cover-date">
                         {new Date(`${invitation.date}T12:00:00`).toLocaleDateString("es-AR", {
@@ -204,7 +204,7 @@ export default function Invitacion() {
 
                     <button className="calendar-button" onClick={addToCalendar}>
                         <HugeiconsIcon icon={Calendar02Icon} size={17} />
-                        Agregar al calendario
+                        Guardar fecha
                     </button>
 
                     <HugeiconsIcon icon={ChevronDown} className="cover-arrow" size={20} />
@@ -265,7 +265,7 @@ export default function Invitacion() {
                 <div className="rsvp-card">
                     <h2>Confirmar asistencia</h2>
                     <p className="rsvp-description">
-                        Queremos saber si vas a acompañarnos en esta noche tan especial.
+                        Confirmá tu asistencia. También podés indicarnos si necesitás que tengamos en cuenta alguna alergia o restricción alimentaria.
                     </p>
 
                     <RSVPForm slug={slug} name={invitation.name} />
@@ -275,7 +275,7 @@ export default function Invitacion() {
             <GiftSection
                 alias={invitation.alias}
                 cbu={invitation.cbu}
-                text={invitation.giftText || "Tu presencia es el mejor regalo."}
+                text={"Lo más importante es compartir este momento con vos. Si además querés hacerme un regalo, podés hacerlo por estos medios."}
             />
 
             <footer className="invitation-footer">
