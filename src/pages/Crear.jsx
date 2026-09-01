@@ -276,7 +276,7 @@ export default function Crear() {
                             <div className="input-prefix">
 
                                 <span>
-                                    mis15.com/
+                                    mis15-one.vercel.app/invitacion/
                                 </span>
 
                                 <input
