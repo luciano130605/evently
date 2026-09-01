@@ -8,7 +8,7 @@ import GiftSection from "../components/GiftSection";
 import { demoInvitation } from "../data/demoInvitation";
 import { loadInvitationBySlug } from "../lib/invitations";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Calendar02Icon, ChevronDown, LinkCircleIcon, PinLocation02Icon, PinLocation03Icon, TieIcon } from "@hugeicons/core-free-icons";
+import { Album01FreeIcons, Calendar02Icon, ChevronDown, LinkCircleIcon, PinLocation02Icon, PinLocation03Icon, TieIcon } from "@hugeicons/core-free-icons";
 
 const THEMES = {
     lavender: {
@@ -301,7 +301,8 @@ export default function Invitacion() {
                                 }
                             }}
                         >
-                            Ver álbum
+                            <span>Ver álbum</span>
+                            <HugeiconsIcon icon={Album01FreeIcons} size={14} />
                         </a>
                     </div>
                 </section>

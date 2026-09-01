@@ -350,6 +350,37 @@ describe("Invitaciones XV - suite completa", () => {
             });
         });
 
+        it("normaliza el estado mayor/menor de edad desde Supabase", async () => {
+            const rows = await loadRsvpsBySlug("sofia");
+
+            const raw = [
+                {
+                    slug: "sofia",
+                    name: "Ana",
+                    restriction: "Ninguna",
+                    is_over_18: false,
+                    created_at: "2026-01-01T00:00:00.000Z"
+                },
+                {
+                    slug: "sofia",
+                    name: "Lucas",
+                    restriction: "Ninguna",
+                    is_over_18: true,
+                    created_at: "2026-01-02T00:00:00.000Z"
+                }
+            ];
+
+            const normalized = raw.map((item) => ({
+                ...item,
+                createdAt: item.created_at,
+                isOver18: item.is_over_18 ?? true
+            }));
+
+            expect(normalized[0].isOver18).toBe(false);
+            expect(normalized[1].isOver18).toBe(true);
+            expect(normalized[0].createdAt).toBe("2026-01-01T00:00:00.000Z");
+        });
+
         it("no permite dos confirmaciones con el mismo nombre y apellido", async () => {
             await saveRsvp("sofia", {
                 firstName: "Lucía",

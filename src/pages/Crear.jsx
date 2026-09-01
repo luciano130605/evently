@@ -484,7 +484,7 @@ export default function Crear() {
                                 Nombre del salón <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
                             </div>
                             <input
-                                value={form.venue || ""}
+                                placeholder={form.venue || ""}
                                 onChange={(event) =>
                                     update(
                                         "venue",
@@ -562,7 +562,7 @@ export default function Crear() {
                                 Tipo de dress code <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
                             </div>
                             <input
-                                value={form.dressCode || ""}
+                                placeholder={form.dressCode || ""}
                                 onChange={(event) =>
                                     update(
                                         "dressCode",
@@ -579,8 +579,7 @@ export default function Crear() {
                             Descripción
 
                             <textarea
-                                value={form.dressDescription || ""}
-                                placeholder={""}
+                                placeholder={form.dressDescription || ""}
                                 onChange={(event) =>
                                     update(
                                         "dressDescription",
@@ -597,7 +596,7 @@ export default function Crear() {
                                 Colores que no se pueden usar <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
                             </div>
                             <input
-                                value={form.dressColorsNotAllowed || ""}
+                                placeholder={form.dressColorsNotAllowed || ""}
                                 onChange={(event) =>
                                     update(
                                         "dressColorsNotAllowed",
@@ -628,7 +627,6 @@ export default function Crear() {
                             Álbum de Google Fotos 
 
                             <input
-                                value={form.googlePhotosUrl || ""}
                                 onChange={(event) => update("googlePhotosUrl", event.target.value.trim())}
                                 placeholder="https://photos.google.com/share/..."
                             />
@@ -652,7 +650,6 @@ export default function Crear() {
                             Alias
 
                             <input
-                                value={form.alias || ""}
                                 placeholder={form.alias || ""}
                                 onChange={(event) =>
                                     update(
@@ -669,7 +666,6 @@ export default function Crear() {
                             CBU
 
                             <input
-                                value={form.cbu || ""}
                                 placeholder={form.cbu || ""}
                                 onChange={(event) =>
                                     update(

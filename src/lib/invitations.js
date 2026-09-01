@@ -336,6 +336,7 @@ export async function loadRsvpsBySlug(slug) {
         } else if (data) {
             return data.map((item) => ({
                 ...item,
+                isOver18: item.is_over_18 ?? item.isOver18 ?? true,
                 createdAt: item.created_at || item.createdAt || new Date().toISOString()
             }));
         }
