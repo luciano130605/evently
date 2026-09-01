@@ -2981,10 +2981,6 @@ background: var(--bg-elevated);
 
 @media (max-width: 600px) {
 
-  .theme-grid {
-    grid-template-columns: 1fr;
-  }
-
   .theme-option {
     padding: 9px;
   }
