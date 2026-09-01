@@ -340,6 +340,9 @@ export default function Crear() {
                                     )
                                 }
                                 required
+                                style={{
+                                    width: "90%"
+                                }}
                             />
                         </label>
 
@@ -356,6 +359,9 @@ export default function Crear() {
                                         )
                                     }
                                     required
+                                    style={{
+                                        width: "90%"
+                                    }}
                                 />
                             </label>
 
@@ -371,6 +377,9 @@ export default function Crear() {
                                             event.target.value
                                         )
                                     }
+                                    style={{
+                                        width: "90%"
+                                    }}
                                     required
                                 />
                             </label>
@@ -406,31 +415,31 @@ export default function Crear() {
                             Dirección
 
                             <div className="address-search">
-                            <input
-                                value={form.address || ""}
-                                onChange={(event) => {
-                                    const address = event.target.value;
-                                    setForm((previous) => ({
-                                        ...previous,
-                                        address,
-                                        mapsUrl: address.trim()
-                                            ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
-                                            : ""
-                                    }));
-                                }}
-                            />
-                            {addressSearching && <small>Buscando lugares...</small>}
-                            {addressMessage && <small>{addressMessage}</small>}
-                            {addressResults.length > 0 && (
-                                <div className="address-results">
-                                    {addressResults.map((result) => (
-                                        <button type="button" key={result.place_id} onClick={() => selectAddress(result)}>
-                                            <strong>{result.name || result.display_name.split(",")[0]}</strong>
-                                            <span>{result.display_name}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                                <input
+                                    value={form.address || ""}
+                                    onChange={(event) => {
+                                        const address = event.target.value;
+                                        setForm((previous) => ({
+                                            ...previous,
+                                            address,
+                                            mapsUrl: address.trim()
+                                                ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+                                                : ""
+                                        }));
+                                    }}
+                                />
+                                {addressSearching && <small>Buscando lugares...</small>}
+                                {addressMessage && <small>{addressMessage}</small>}
+                                {addressResults.length > 0 && (
+                                    <div className="address-results">
+                                        {addressResults.map((result) => (
+                                            <button type="button" key={result.place_id} onClick={() => selectAddress(result)}>
+                                                <strong>{result.name || result.display_name.split(",")[0]}</strong>
+                                                <span>{result.display_name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                         </label>
@@ -657,7 +666,7 @@ export default function Crear() {
                         disabled={saving}
                     >
 
-                            {saving ? "Guardando..." : editSlug ? "Guardar cambios" : "Crear invitación"}
+                        {saving ? "Guardando..." : editSlug ? "Guardar cambios" : "Crear invitación"}
 
 
                     </button>
