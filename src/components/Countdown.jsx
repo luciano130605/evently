@@ -161,7 +161,7 @@ export default function Countdown({
 
             <div className="section-heading">
                 <span className="section-kicker">
-                    CUENTA REGRESIVA
+                    PRÓXIMO EVENTO
                 </span>
 
                 <h2>

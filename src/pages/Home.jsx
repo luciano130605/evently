@@ -23,7 +23,7 @@ export default function Home({ theme, onToggleTheme }) {
                     to="/inicio"
                     className="brand"
                 >
-                    mis15
+                    evently
                 </Link>
 
 
@@ -51,26 +51,23 @@ export default function Home({ theme, onToggleTheme }) {
                 <div className="home-copy">
 
                     <div className="home-pill">
-
-
                         INVITACIONES DIGITALES
-
                     </div>
 
                     <h1>
-                        Tu noche.
+                        Tu evento.
                         <span>
                             Tu historia.
                         </span>
                     </h1>
 
                     <p>
-                        Creá una invitación de 15 única y recibí las confirmaciones de tus invitados en un solo lugar.
+                        Creá una invitación para cualquier festejo y recibí confirmaciones en un solo lugar.
                     </p>
 
                     <div className="home-actions">
                         <Link to="/crear" className="home-primary">
-                            Crear mi invitación
+                            Crear mi evento
                         </Link>
 
                         <Link to="/invitacion/sofia" className="home-secondary">
@@ -92,11 +89,11 @@ export default function Home({ theme, onToggleTheme }) {
                         </span>
 
                         <strong>
-                            Sofía
+                            Juan
                         </strong>
 
                         <span className="preview-sub">
-                            Mis 15 años
+                            Celebramos juntos
                         </span>
 
                         <div className="preview-date">
@@ -117,7 +114,7 @@ export default function Home({ theme, onToggleTheme }) {
                         </div>
 
                         <div className="preview-bottom">
-                            SOFÍA · XV
+                            JUAN · EVENTO
                         </div>
 
                     </div>

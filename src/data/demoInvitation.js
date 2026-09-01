@@ -1,15 +1,19 @@
 export const demoInvitation = {
-    slug: "Nombre",
+    slug: "juan",
 
-    name: "Nombre",
+    name: "Juan",
 
-    subtitle: "Mis 15 años",
+    eventType: "Cumpleaños",
+
+    subtitle: "Celebramos juntos",
 
     date: "2026-11-15",
 
     time: "21:00",
+    timeStart: "21:00",
+    timeEnd: "00:00",
 
-    venue: "Salón",
+    venue: "Salón Los Laureles",
 
     address: "",
 
@@ -19,15 +23,20 @@ export const demoInvitation = {
     dressCode: "Elegante",
 
     dressDescription:
-        "Vestite como quieras sentirte especial. Un detalle importante: no usar blanco.",
+        "Vestite como quieras sentirte especial. Un detalle importante: no usar blanco ni rojo.",
 
-    dressColorsNotAllowed: "Blanco",
+    dressColorsNotAllowed: "Blanco, rojo",
 
     isOver18: true,
 
-    googlePhotosUrl: "https://photos.google.com/u/0/albums?hl=es&pli=1",
+    requireAgeConfirmation: true,
+    showDressCode: true,
+    showPhotoAlbum: true,
+    showGiftSection: true,
 
-    alias: "alias",
+    googlePhotosUrl: "https://photos.google.com/share/AF1QipP0Z6BNVdC2f8wR4T5aFj0gAt17hzvLhA4nPzvM?key=Q0pLNkR5T3J3b2NKT0J3aGxXOWVQ",
+
+    alias: "juan.cumple",
 
     cbu: "0000000000000000000000",
 

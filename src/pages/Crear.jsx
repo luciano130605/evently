@@ -23,7 +23,6 @@ export const requiredFields = [
     ["password", "Contraseña de administración"],
     ["date", "Fecha"],
     ["timeStart", "Desde"],
-    ["timeEnd", "Hasta"],
     ["venue", "Nombre del salón"],
     ["address", "Dirección"],
     ["mapsUrl", "Link de Google Maps"],
@@ -34,14 +33,23 @@ export const requiredFields = [
 export const isRequiredFormComplete = (formData = {}) => {
     const hasFirstName = String(formData.firstName ?? "").trim().length > 0;
     const hasLegacyName = !hasFirstName && String(formData.name ?? "").trim().length > 0;
+    const showDressCode = formData.showDressCode !== false;
+
+    const fieldsToValidate = requiredFields.filter(([field]) => {
+        if (!showDressCode && (field === "dressCode" || field === "dressColorsNotAllowed")) {
+            return false;
+        }
+
+        return true;
+    });
 
     if (hasLegacyName) {
-        return requiredFields
+        return fieldsToValidate
             .filter(([field]) => field !== "firstName")
             .every(([field]) => String(formData[field] ?? "").trim().length > 0);
     }
 
-    return requiredFields.every(([field]) => String(formData[field] ?? "").trim().length > 0);
+    return fieldsToValidate.every(([field]) => String(formData[field] ?? "").trim().length > 0);
 };
 
 export default function Crear() {
@@ -58,13 +66,15 @@ export default function Crear() {
             firstName: "",
             lastName: "",
             name: "",
-
+            eventType: "Cumpleaños",
             slug: "",
-
             password: "",
-
             heroImage: "",
             isOver18: true,
+            requireAgeConfirmation: false,
+            showDressCode: true,
+            showPhotoAlbum: true,
+            showGiftSection: true,
             googlePhotosUrl: demoInvitation.googlePhotosUrl
         });
     const [saveError, setSaveError] = useState("");
@@ -92,6 +102,11 @@ export default function Crear() {
                     firstName: invitation.firstName || parsed.firstName,
                     lastName: invitation.lastName || parsed.lastName,
                     isOver18: invitation.isOver18 ?? true,
+                    requireAgeConfirmation: invitation.requireAgeConfirmation ?? false,
+                    showDressCode: invitation.showDressCode ?? true,
+                    showPhotoAlbum: invitation.showPhotoAlbum ?? true,
+                    showGiftSection: invitation.showGiftSection ?? true,
+                    eventType: invitation.eventType || "Cumpleaños",
                     googlePhotosUrl: invitation.googlePhotosUrl || demoInvitation.googlePhotosUrl
                 }));
             }
@@ -197,7 +212,13 @@ export default function Crear() {
 
         event.preventDefault();
 
-        const missingField = requiredFields.find(([field]) => !String(form[field] || "").trim());
+        const missingField = requiredFields.find(([field]) => {
+            if (form.showDressCode === false && (field === "dressCode" || field === "dressColorsNotAllowed")) {
+                return false;
+            }
+
+            return !String(form[field] || "").trim();
+        });
 
         if (missingField) {
             const [, label] = missingField;
@@ -258,7 +279,7 @@ export default function Crear() {
                 </Link>
 
                 <span className="brand">
-                    mis15
+                    evently
                 </span>
 
                 <span className="creator-label">
@@ -329,6 +350,22 @@ export default function Crear() {
                             />
                         </label>
 
+                        <label>
+                            <div>
+                                Tipo de evento
+                            </div>
+                            <select
+                                value={form.eventType || "Cumpleaños"}
+                                onChange={(event) => update("eventType", event.target.value)}
+                            >
+                                <option value="Cumpleaños">Cumpleaños</option>
+                                <option value="Fiesta">Fiesta</option>
+                                <option value="Casamiento">Casamiento</option>
+                                <option value="Fin de año">Fin de año</option>
+                                <option value="Cena">Cena</option>
+                                <option value="Evento especial">Evento especial</option>
+                            </select>
+                        </label>
 
                         <label>
 
@@ -340,7 +377,7 @@ export default function Crear() {
                             <div className="input-prefix">
 
                                 <span>
-                                    mis15-one.vercel.app/invitacion/
+                                    evently-one.vercel.app/invitacion/
                                 </span>
 
                                 <input
@@ -363,11 +400,22 @@ export default function Crear() {
                             </div>
 
                             <small>
-                                Si se deja vacío, se usará el nombre de la quinceañera.
+                                Si se deja vacío, se usará el nombre del evento.
                             </small>
 
                         </label>
 
+
+                        <label className="checkbox-row">
+                            <input
+                                type="checkbox"
+                                checked={Boolean(form.requireAgeConfirmation)}
+                                onChange={(event) => update("requireAgeConfirmation", event.target.checked)}
+                            />
+                            <span>Solicitar edad en la confirmación</span>
+                        </label>
+
+                       
 
                         <label>
                             <div>
@@ -449,7 +497,7 @@ export default function Crear() {
 
                             <label>
                                 <div>
-                                    Hasta <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                                    Hasta
                                 </div>
                                 <input
                                     type="time"
@@ -463,7 +511,6 @@ export default function Crear() {
                                     style={{
                                         width: "90%"
                                     }}
-                                    required
                                 />
                             </label>
                         </div>
@@ -551,133 +598,121 @@ export default function Crear() {
 
 
                     <fieldset>
-
                         <legend>
                             04 · DRESS CODE
                         </legend>
 
-                        <label>
-
-                            <div>
-                                Tipo de dress code <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
-                            </div>
+                        <label className="checkbox-row">
                             <input
-                                placeholder={form.dressCode || ""}
-                                onChange={(event) =>
-                                    update(
-                                        "dressCode",
-                                        event.target.value
-                                    )
-                                }
-                                required
+                                type="checkbox"
+                                checked={Boolean(form.showDressCode)}
+                                onChange={(event) => update("showDressCode", event.target.checked)}
                             />
-
+                            <span>Mostrar dress code</span>
                         </label>
 
-                        <label>
+                        <div className={form.showDressCode === false ? "section-toggle-off" : ""}>
+                            <label>
+                                <div>
+                                    Tipo de dress code {form.showDressCode !== false && <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>}
+                                </div>
+                                <input
+                                    placeholder={form.dressCode || ""}
+                                    onChange={(event) => update("dressCode", event.target.value)}
+                                    required={form.showDressCode !== false}
+                                    disabled={form.showDressCode === false}
+                                />
+                            </label>
 
-                            Descripción
+                            <label>
+                                Descripción
+                                <textarea
+                                    placeholder={form.dressDescription || ""}
+                                    onChange={(event) => update("dressDescription", event.target.value)}
+                                    disabled={form.showDressCode === false}
+                                />
+                            </label>
 
-                            <textarea
-                                placeholder={form.dressDescription || ""}
-                                onChange={(event) =>
-                                    update(
-                                        "dressDescription",
-                                        event.target.value
-                                    )
-                                }
-                            />
-
-                        </label>
-
-                        <label>
-
-                            <div>
-                                Colores que no se pueden usar <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
-                            </div>
-                            <input
-                                placeholder={form.dressColorsNotAllowed || ""}
-                                onChange={(event) =>
-                                    update(
-                                        "dressColorsNotAllowed",
-                                        event.target.value
-                                    )
-                                }
-                                required
-                            />
-
-                            <small>
-                                Separalos con comas para mostrarlos claramente en la invitación.
-                            </small>
-
-                        </label>
-
+                            <label>
+                                <div>
+                                    Colores que no se pueden usar {form.showDressCode !== false && <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>}
+                                </div>
+                                <input
+                                    placeholder={form.dressColorsNotAllowed || ""}
+                                    onChange={(event) => update("dressColorsNotAllowed", event.target.value)}
+                                    required={form.showDressCode !== false}
+                                    disabled={form.showDressCode === false}
+                                />
+                                <small>
+                                    Separalos con comas para mostrarlos claramente en la invitación.
+                                </small>
+                            </label>
+                        </div>
                     </fieldset>
 
 
                     <fieldset>
+                        <legend>05 · FOTOS</legend>
 
-                        <legend>
-                            05 · FOTOS
-                        </legend>
-
-                        
-
-                        <label>
-                            Álbum de Google Fotos 
-
+                        <label className="checkbox-row">
                             <input
-                                onChange={(event) => update("googlePhotosUrl", event.target.value.trim())}
-                                placeholder="https://photos.google.com/share/..."
+                                type="checkbox"
+                                checked={Boolean(form.showPhotoAlbum)}
+                                onChange={(event) => update("showPhotoAlbum", event.target.checked)}
                             />
-
-                            <small>
-                                Si lo agregás, se mostrará un botón en la invitación para abrir el álbum.
-                            </small>
+                            <span>Mostrar álbum de fotos</span>
                         </label>
 
+                        <div className={form.showPhotoAlbum === false ? "section-toggle-off" : ""}>
+                            <label>
+                                Álbum de Google Fotos
+                                <input
+                                    onChange={(event) => update("googlePhotosUrl", event.target.value.trim())}
+                                    placeholder="https://photos.google.com/share/..."
+                                    disabled={form.showPhotoAlbum === false}
+                                />
+                                <small>
+                                    Si lo agregás, se mostrará un botón en la invitación para abrir el álbum.
+                                </small>
+                            </label>
+                        </div>
                     </fieldset>
-
 
                     <fieldset>
+                        <legend>06 · REGALOS</legend>
 
-                        <legend>
-                            06 · REGALOS
-                        </legend>
-
-                        <label>
-
-                            Alias
-
+                        <label className="checkbox-row">
                             <input
-                                placeholder={form.alias || ""}
-                                onChange={(event) =>
-                                    update(
-                                        "alias",
-                                        event.target.value
-                                    )
-                                }
+                                type="checkbox"
+                                checked={Boolean(form.showGiftSection)}
+                                onChange={(event) => update("showGiftSection", event.target.checked)}
                             />
-
+                            <span>Mostrar sección de regalos</span>
                         </label>
 
-                        <label>
+                        <div className={form.showGiftSection === false ? "section-toggle-off" : ""}>
+                            <label>
+                                Alias
+                                <input
+                                    placeholder={form.alias || ""}
+                                    onChange={(event) => update("alias", event.target.value)}
+                                    disabled={form.showGiftSection === false}
+                                />
+                            </label>
 
-                            CBU
-
-                            <input
-                                placeholder={form.cbu || ""}
-                                onChange={(event) =>
-                                    update(
-                                        "cbu",
-                                        event.target.value
-                                    )
-                                }
-                            />
-
-                        </label>
-
+                            <label>
+                                CBU
+                                <input
+                                    placeholder={form.cbu || ""}
+                                    onChange={(event) => update("cbu", event.target.value)}
+                                    disabled={form.showGiftSection === false}
+                                />
+                            </label>
+                        </div>
                     </fieldset>
+
+
+                  
 
 
                     <fieldset>
@@ -755,7 +790,7 @@ export default function Crear() {
                                             "--theme-background": theme.background
                                         }}
                                     >
-                                        <span>XV</span>
+                                        <span>{theme.name.slice(0, 2).toUpperCase()}</span>
                                     </div>
 
                                     <div className="theme-info">

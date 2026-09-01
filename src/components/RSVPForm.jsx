@@ -6,7 +6,7 @@ import { Check, Alert02Icon } from "@hugeicons/core-free-icons";
 import { saveRsvp } from "../lib/invitations";
 
 
-export default function RSVPForm({ slug, name }) {
+export default function RSVPForm({ slug, name, requireAgeConfirmation = false }) {
     const [form, setForm] = useState({
         firstName: "",
         lastName: "",
@@ -109,25 +109,27 @@ export default function RSVPForm({ slug, name }) {
                 />
             </div>
 
-            <div className="form-field">
-                <label>¿Sos mayor de 18 años?</label>
-                <div className="age-toggle" role="tablist" aria-label="Mayor de edad">
-                    <button
-                        type="button"
-                        className={`age-toggle-option ${form.isOver18 ? "active" : ""}`}
-                        onClick={() => update("isOver18", true)}
-                    >
-                        Sí
-                    </button>
-                    <button
-                        type="button"
-                        className={`age-toggle-option ${!form.isOver18 ? "active" : ""}`}
-                        onClick={() => update("isOver18", false)}
-                    >
-                        No
-                    </button>
+            {requireAgeConfirmation && (
+                <div className="form-field">
+                    <label>¿Sos mayor de 18 años?</label>
+                    <div className="age-toggle" role="tablist" aria-label="Mayor de edad">
+                        <button
+                            type="button"
+                            className={`age-toggle-option ${form.isOver18 ? "active" : ""}`}
+                            onClick={() => update("isOver18", true)}
+                        >
+                            Sí
+                        </button>
+                        <button
+                            type="button"
+                            className={`age-toggle-option ${!form.isOver18 ? "active" : ""}`}
+                            onClick={() => update("isOver18", false)}
+                        >
+                            No
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div className="form-field">
                 <label>Restricciones alimentarias</label>

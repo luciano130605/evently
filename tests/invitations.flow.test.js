@@ -152,6 +152,23 @@ describe("Invitaciones XV - suite completa", () => {
             expect(isRequiredFormComplete({ ...completeForm, dressCode: "" })).toBe(false);
         });
 
+        it("no exige dress code si está oculto", () => {
+            const form = {
+                name: "Sofía",
+                password: "123456",
+                date: "2026-11-15",
+                timeStart: "20:00",
+                venue: "Salón Central",
+                address: "Av. Siempre Viva 123",
+                mapsUrl: "https://maps.google.com/",
+                dressCode: "",
+                dressColorsNotAllowed: "",
+                showDressCode: false
+            };
+
+            expect(isRequiredFormComplete(form)).toBe(true);
+        });
+
         it("convierte un nombre normal a slug", () => {
             expect(slugify("Sofía Álvarez")).toBe("sofia-alvarez");
         });

@@ -1553,7 +1553,7 @@ img {
 .rsvp-success span {
   margin-top: 5px;
 
-  color:#6B6480;
+  color: #6B6480;
 
   font-size: 11px;
 }
@@ -2527,7 +2527,7 @@ img {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-background:#FFFFFF ;
+  background: #FFFFFF;
   gap: 20px;
 
   padding: 30px;
@@ -2537,7 +2537,7 @@ background:#FFFFFF ;
 
 .center-page h1 {
   font-family: 'Baloo 2', sans-serif;
-color: #2B2640;
+  color: #2B2640;
   font-size: 42px;
 }
 
@@ -3328,9 +3328,8 @@ color: #2B2640;
     clamp(90px, 18vw, 150px);
 
   line-height: .8;
-
+font-size: 40px;
   font-weight: 800;
-
   letter-spacing: -.08em;
 }
 
@@ -3814,4 +3813,159 @@ color: #2B2640;
     width: 100%;
     box-sizing: border-box;
   }
+}
+
+/* =========================================================
+   CHECKBOX CUSTOM
+========================================================= */
+/* =========================================================
+   TOGGLE SWITCH (checkbox-row)
+========================================================= */
+
+.checkbox-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding: 13px 15px;
+
+  border: 1.5px solid var(--border);
+  border-radius: 15px;
+  background: var(--surface);
+
+  cursor: pointer;
+  user-select: none;
+
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.checkbox-row:hover {
+  border-color: var(--lav-2);
+}
+
+.checkbox-row:has(input:checked) {
+  border-color: color-mix(in srgb, var(--purple) 35%, var(--border));
+  background: var(--surface-strong);
+}
+
+.checkbox-row span {
+  order: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+
+.checkbox-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  order: 2;
+  flex-shrink: 0;
+
+  width: 40px;
+  height: 24px;
+  margin: 0;
+  padding: 3px;
+
+  position: relative;
+  border-radius: 999px;
+  border: none;
+  background: var(--border);
+
+  cursor: pointer;
+  transition: background .25s ease;
+}
+
+.checkbox-row input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+
+  background: white;
+  box-shadow: 0 2px 6px rgba(43, 38, 64, .22);
+
+  transition: transform .25s cubic-bezier(.4, 0, .2, 1);
+}
+
+.checkbox-row input[type="checkbox"]:checked {
+  background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+}
+
+.checkbox-row input[type="checkbox"]:checked::after {
+  transform: translateX(16px);
+}
+
+.checkbox-row input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(124, 108, 240, .18);
+}
+
+.checkbox-row input[type="checkbox"]:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+/* fieldset content atenuado cuando la sección está apagada */
+.section-toggle-off {
+  opacity: .45;
+  pointer-events: none;
+}
+
+/* =========================================================
+   SELECT (Tipo de evento)
+========================================================= */
+
+.creator-form select {
+  width: 100%;
+  height: 48px;
+
+  padding: 0 42px 0 14px;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  font-size: 16px;
+  background:
+
+    var(--input-bg);
+  background-size: 10px 6px;
+
+  color: var(--ink);
+
+  cursor: pointer;
+  outline: none;
+
+  transition: .2s ease;
+}
+
+.creator-form select:hover {
+  border-color: var(--lav-2);
+}
+
+.creator-form select:focus {
+  border-color: var(--purple);
+
+  box-shadow:
+    0 0 0 4px rgba(124, 108, 240, .1);
+}
+
+.creator-form select:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+
+/* las opciones del dropdown nativo */
+.creator-form select option {
+  background: var(--panel);
+  color: var(--ink);
 }

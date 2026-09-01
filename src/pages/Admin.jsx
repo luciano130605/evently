@@ -60,7 +60,7 @@ function AdminEntry({ theme, onToggleTheme }) {
         <main className="admin-page">
             <header className="admin-header">
                 <Link to="/">Volver</Link>
-                <span className="brand">mis15</span>
+                <span className="brand">evently</span>
                 <div className="admin-header-actions">
                     <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
                 </div>
@@ -285,7 +285,7 @@ export default function Admin({ theme, onToggleTheme }) {
             <main className="admin-page">
                 <header className="admin-header">
                     <Link to="/">Volver</Link>
-                    <span className="brand">mis15</span>
+                    <span className="brand">evently</span>
                     <div className="admin-header-actions">
                         <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
                     </div>
@@ -344,7 +344,7 @@ export default function Admin({ theme, onToggleTheme }) {
                     Ver invitación
                 </Link>
 
-                <span className="brand">mis15</span>
+                <span className="brand">evently</span>
                 <div className="admin-header-actions">
                     <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
                 </div>
@@ -359,7 +359,7 @@ export default function Admin({ theme, onToggleTheme }) {
                     <h1>{invitation.name}</h1>
 
                     <p>
-                        mis15.com/invitacion/{slug}
+                        evently-azure-six.vercel.app/invitacion/{slug}
                     </p>
                 </div>
 

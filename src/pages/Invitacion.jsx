@@ -81,6 +81,9 @@ export default function Invitacion() {
     }, [slug]);
 
     const invitationTheme = THEMES[invitation.template] || THEMES.lavender;
+    const isXvEvent = /(xv|quince|15)/i.test(String(invitation.eventType || ""));
+    const showDressCode = Boolean(invitation.showDressCode ?? isXvEvent);
+    const showPhotoAlbum = Boolean(invitation.showPhotoAlbum ?? Boolean(invitation.googlePhotosUrl));
 
     function isAppleDevice() {
         const userAgent = navigator.userAgent || navigator.vendor || "";
@@ -105,9 +108,9 @@ export default function Invitacion() {
             `DTSTAMP:${formatICSDate(new Date())}`,
             `DTSTART:${formatICSDate(start)}`,
             `DTEND:${formatICSDate(end)}`,
-            `SUMMARY:${escapeICS(`XV ${invitation.name}`)}`,
+            `SUMMARY:${escapeICS(`${invitation.eventType || "Evento"} ${invitation.name}`)}`,
             `LOCATION:${escapeICS(invitation.address || "")}`,
-            `DESCRIPTION:${escapeICS(`Celebración de los 15 años de ${invitation.name}`)}`,
+            `DESCRIPTION:${escapeICS(`${invitation.eventType || "Evento"} de ${invitation.name}`)}`,
             "END:VEVENT",
             "END:VCALENDAR"
         ].join("\r\n");
@@ -116,7 +119,7 @@ export default function Invitacion() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `XV-${invitation.name}.ics`;
+        link.download = `${(invitation.eventType || "Evento").replace(/\s+/g, "-")}-${invitation.name}.ics`;
 
         document.body.appendChild(link);
         link.click();
@@ -147,10 +150,10 @@ export default function Invitacion() {
         const url =
             "https://calendar.google.com/calendar/render" +
             "?action=TEMPLATE" +
-            `&text=${encodeURIComponent(`XV ${invitation.name}`)}` +
+            `&text=${encodeURIComponent(`${invitation.eventType || "Evento"} ${invitation.name}`)}` +
             `&dates=${startFormatted}/${endFormatted}` +
             `&location=${encodeURIComponent(invitation.address || "")}` +
-            `&details=${encodeURIComponent(`Celebración de los 15 años de ${invitation.name}`)}`;
+            `&details=${encodeURIComponent(`${invitation.eventType || "Evento"} de ${invitation.name}`)}`;
 
         window.open(url, "_blank", "noopener,noreferrer");
     }
@@ -195,10 +198,10 @@ export default function Invitacion() {
 
                 <div className="cover-content">
                     <span className="cover-kicker">ESTÁS INVITADO/A</span>
-                    <div className="cover-xv">XV</div>
+                    <div className="cover-xv">{(invitation.eventType || "Evento")}</div>
 
                     <h1>{invitation.name}</h1>
-                    <p>{"Mis 15"}</p>
+                    <p></p>
 
                     <div className="cover-date">
                         {new Date(`${invitation.date}T12:00:00`).toLocaleDateString("es-AR", {
@@ -267,21 +270,23 @@ export default function Invitacion() {
                 </div>
             </section>
 
-            <section className="dress-section">
-                <div className="dress-content">
-                    <span className="section-kicker">DRESS CODE</span>
-                    <h2>{invitation.dressCode || "Elegante"}</h2>
-                    <p>{invitation.dressDescription || "Elegí tu mejor look para acompañarnos."}</p>
-                    {invitation.dressColorsNotAllowed && (
-                        <div className="dress-colors-not-allowed">
-                            <strong>Colores no permitidos</strong>
-                            <span>{invitation.dressColorsNotAllowed}</span>
-                        </div>
-                    )}
-                </div>
-            </section>
+            {showDressCode && (
+                <section className="dress-section">
+                    <div className="dress-content">
+                        <span className="section-kicker">DRESS CODE</span>
+                        <h2>{invitation.dressCode || "Elegante"}</h2>
+                        <p>{invitation.dressDescription || "Elegí tu mejor look para acompañarnos."}</p>
+                        {invitation.dressColorsNotAllowed && (
+                            <div className="dress-colors-not-allowed">
+                                <strong>Colores no permitidos</strong>
+                                <span>{invitation.dressColorsNotAllowed}</span>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            )}
 
-            {invitation.googlePhotosUrl && (
+            {showPhotoAlbum && invitation.googlePhotosUrl && (
                 <section className="invitation-section photo-album-section">
                     <div className="section-content">
                         <span className="section-kicker">ÁLBUM DE FOTOS</span>
@@ -316,15 +321,21 @@ export default function Invitacion() {
                         Confirmá tu asistencia. También podés indicarnos si necesitás que tengamos en cuenta alguna alergia o restricción alimentaria.
                     </p>
 
-                    <RSVPForm slug={slug} name={invitation.name} />
+                    <RSVPForm
+                        slug={slug}
+                        name={invitation.name}
+                        requireAgeConfirmation={Boolean(invitation.requireAgeConfirmation)}
+                    />
                 </div>
             </section>
 
-            <GiftSection
-                alias={invitation.alias}
-                cbu={invitation.cbu}
-                text={"Lo más importante es compartir este momento con vos. Si además querés hacerme un regalo, podés hacerlo por estos medios."}
-            />
+            {Boolean(invitation.showGiftSection) && (
+                <GiftSection
+                    alias={invitation.alias}
+                    cbu={invitation.cbu}
+                    text={"Lo más importante es compartir este momento con vos. Si además querés hacerme un regalo, podés hacerlo por estos medios."}
+                />
+            )}
 
             <section className="invitation-cta">
 
@@ -333,9 +344,13 @@ export default function Invitacion() {
             </section>
 
             <footer className="invitation-footer">
-                <span>XV</span>
+                <img
+                    src="/favicon-32.png"
+                    alt={invitation.eventType || "Evento"}
+                    className="event-type-icon"
+                />
                 <p>Gracias por ser parte de este momento.</p>
-                <small>{invitation.name} · Mis 15 años</small>
+                <small>{invitation.name} · {invitation.eventType || "Evento"}</small>
 
                 <div className="button-crear">
                     <Link to="/" className="home-secondary">
