@@ -11,10 +11,10 @@ export const demoInvitation = {
 
     venue: "Salón",
 
-    address: "Ejemplo 1234, Buenos Aires",
+    address: "",
 
     mapsUrl:
-        "https://www.google.com/maps/search/?api=1&query=ejemplo+1234+Buenos+Aires",
+        "",
 
     dressCode: "Elegante",
 

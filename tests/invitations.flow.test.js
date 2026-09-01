@@ -8,6 +8,8 @@ import {
     loadRsvpsBySlug,
     slugify
 } from "../src/lib/invitations";
+import { demoInvitation } from "../src/data/demoInvitation";
+import { isRequiredFormComplete } from "../src/pages/Crear";
 
 function setupLocalStorage() {
     const storage = {};
@@ -93,11 +95,35 @@ describe("Invitaciones XV - suite completa", () => {
         vi.restoreAllMocks();
     });
 
+    it("deja la dirección vacía en la plantilla demo para no disparar búsquedas automáticas", () => {
+        expect(demoInvitation.address).toBe("");
+        expect(demoInvitation.mapsUrl).toBe("");
+    });
+
     // ============================================================
     // SLUGIFY
     // ============================================================
 
     describe("slugify", () => {
+        it("valida que el formulario esté completo antes de habilitar el botón", () => {
+            const completeForm = {
+                name: "Sofía",
+                password: "123456",
+                date: "2026-11-15",
+                timeStart: "20:00",
+                timeEnd: "23:00",
+                venue: "Salón Central",
+                address: "Av. Siempre Viva 123",
+                mapsUrl: "https://maps.google.com/",
+                dressCode: "Formal",
+                dressColorsNotAllowed: "Blanco, rojo"
+            };
+
+            expect(isRequiredFormComplete(completeForm)).toBe(true);
+            expect(isRequiredFormComplete({ ...completeForm, venue: "" })).toBe(false);
+            expect(isRequiredFormComplete({ ...completeForm, dressCode: "" })).toBe(false);
+        });
+
         it("convierte un nombre normal a slug", () => {
             expect(slugify("Sofía Álvarez")).toBe("sofia-alvarez");
         });

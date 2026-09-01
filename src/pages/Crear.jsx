@@ -18,6 +18,22 @@ import {
 } from "../data/demoInvitation";
 import { loadInvitationBySlug, saveInvitation, slugify } from "../lib/invitations";
 
+export const requiredFields = [
+    ["name", "Nombre de la quinceañera"],
+    ["password", "Contraseña de administración"],
+    ["date", "Fecha"],
+    ["timeStart", "Desde"],
+    ["timeEnd", "Hasta"],
+    ["venue", "Nombre del salón"],
+    ["address", "Dirección"],
+    ["mapsUrl", "Link de Google Maps"],
+    ["dressCode", "Tipo de dress code"],
+    ["dressColorsNotAllowed", "Colores que no se pueden usar"]
+];
+
+export const isRequiredFormComplete = (formData = {}) =>
+    requiredFields.every(([field]) => String(formData[field] ?? "").trim().length > 0);
+
 export default function Crear() {
 
     const navigate =
@@ -128,6 +144,14 @@ export default function Crear() {
 
     };
 
+    const buildGoogleMapsUrl = (address) => {
+        if (!address || !String(address).trim()) {
+            return "";
+        }
+
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address.trim())}`;
+    };
+
     const generateSlug = () => {
 
         return form.name
@@ -149,6 +173,14 @@ export default function Crear() {
     const submit = async (event) => {
 
         event.preventDefault();
+
+        const missingField = requiredFields.find(([field]) => !String(form[field] || "").trim());
+
+        if (missingField) {
+            const [, label] = missingField;
+            setSaveError(`Completá el campo: ${label}.`);
+            return;
+        }
 
         const slug = slugify(
             form.slug.trim() ||
@@ -179,6 +211,8 @@ export default function Crear() {
             setSaving(false);
         }
     };
+
+    const formIsComplete = isRequiredFormComplete(form);
 
     if (loadingEdit) {
         return <main className="center-page"><h1>Cargando invitación...</h1></main>;
@@ -252,8 +286,9 @@ export default function Crear() {
                         </legend>
 
                         <label>
-                            Nombre de la quinceañera
-
+                            <div>
+                                Nombre de la quinceañera <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                            </div>
                             <input
                                 value={form.name}
                                 onChange={(event) =>
@@ -271,7 +306,10 @@ export default function Crear() {
 
                         <label>
 
-                            URL personalizada
+
+                            <div>
+                                URL personalizada <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                            </div>
 
                             <div className="input-prefix">
 
@@ -288,16 +326,29 @@ export default function Crear() {
                                         )
                                     }
                                     placeholder="sofia"
+                                    onBlur={(event) => {
+                                        const nextSlug = event.target.value.trim();
+                                        if (!nextSlug) {
+                                            update("slug", generateSlug());
+                                        }
+                                    }}
                                 />
 
                             </div>
+
+                            <small>
+                                Si se deja vacío, se usará el nombre de la quinceañera.
+                            </small>
 
                         </label>
 
 
                         <label>
+                            <div>
+                                Contraseña de administración <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                            </div>
 
-                            Contraseña de administración
+
 
                             <input
                                 type="password"
@@ -329,10 +380,12 @@ export default function Crear() {
                         </legend>
 
                         <label>
-                            Fecha
+                            <div>
+                                Fecha <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                            </div>
                             <input
                                 type="date"
-                                value={form.date || ""}
+                                placeholder={form.date || ""}
                                 onChange={(event) =>
                                     update(
                                         "date",
@@ -348,7 +401,9 @@ export default function Crear() {
 
                         <div className="time-range">
                             <label>
-                                Desde
+                                <div>
+                                    Desde <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                                </div>
                                 <input
                                     type="time"
                                     value={form.timeStart || ""}
@@ -367,7 +422,9 @@ export default function Crear() {
 
 
                             <label>
-                                Hasta
+                                <div>
+                                    Hasta <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                                </div>
                                 <input
                                     type="time"
                                     value={form.timeEnd || ""}
@@ -396,37 +453,43 @@ export default function Crear() {
 
                         <label>
 
-                            Nombre del salón
 
+                            <div>
+                                Nombre del salón <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                            </div>
                             <input
-                                value={form.venue || ""}
+
+                                placeholder={form.venue || ""}
                                 onChange={(event) =>
                                     update(
                                         "venue",
                                         event.target.value
                                     )
                                 }
+                                required
                             />
 
                         </label>
 
                         <label>
 
-                            Dirección
+                            <div>
+                                Dirección <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                            </div>
 
                             <div className="address-search">
                                 <input
                                     value={form.address || ""}
+                                    placeholder={""}
                                     onChange={(event) => {
                                         const address = event.target.value;
                                         setForm((previous) => ({
                                             ...previous,
                                             address,
-                                            mapsUrl: address.trim()
-                                                ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
-                                                : ""
+                                            mapsUrl: buildGoogleMapsUrl(address)
                                         }));
                                     }}
+                                    required
                                 />
                                 {addressSearching && <small>Buscando lugares...</small>}
                                 {addressMessage && <small>{addressMessage}</small>}
@@ -446,16 +509,15 @@ export default function Crear() {
 
                         <label>
 
-                            Link de Google Maps
+                            <div>
+                                Link de Google Maps <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                            </div>
 
                             <input
                                 value={form.mapsUrl || ""}
-                                onChange={(event) =>
-                                    update(
-                                        "mapsUrl",
-                                        event.target.value
-                                    )
-                                }
+                                readOnly
+                                placeholder="Se completa automáticamente con la dirección"
+                                required
                             />
 
                         </label>
@@ -471,16 +533,19 @@ export default function Crear() {
 
                         <label>
 
-                            Tipo
-
+                            <div>
+                                Tipo de dress code <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                            </div>
                             <input
-                                value={form.dressCode || ""}
+
+                                placeholder={form.dressCode || ""}
                                 onChange={(event) =>
                                     update(
                                         "dressCode",
                                         event.target.value
                                     )
                                 }
+                                required
                             />
 
                         </label>
@@ -490,7 +555,7 @@ export default function Crear() {
                             Descripción
 
                             <textarea
-                                value={form.dressDescription || ""}
+                                placeholder={""}
                                 onChange={(event) =>
                                     update(
                                         "dressDescription",
@@ -503,17 +568,18 @@ export default function Crear() {
 
                         <label>
 
-                            Colores que no se pueden usar
-
+                            <div>
+                                Colores que no se pueden usar <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                            </div>
                             <input
-                                value={form.dressColorsNotAllowed || ""}
+                                placeholder={form.dressColorsNotAllowed || ""}
                                 onChange={(event) =>
                                     update(
                                         "dressColorsNotAllowed",
                                         event.target.value
                                     )
                                 }
-                                placeholder="Blanco, rojo"
+                                required
                             />
 
                             <small>
@@ -536,7 +602,7 @@ export default function Crear() {
                             Alias
 
                             <input
-                                value={form.alias || ""}
+                                placeholder={form.alias || ""}
                                 onChange={(event) =>
                                     update(
                                         "alias",
@@ -552,7 +618,7 @@ export default function Crear() {
                             CBU
 
                             <input
-                                value={form.cbu || ""}
+                                placeholder={form.cbu || ""}
                                 onChange={(event) =>
                                     update(
                                         "cbu",
@@ -663,7 +729,7 @@ export default function Crear() {
                     <button
                         type="submit"
                         className="primary-button full"
-                        disabled={saving}
+                        disabled={saving || !formIsComplete}
                     >
 
                         {saving ? "Guardando..." : editSlug ? "Guardar cambios" : "Crear invitación"}
