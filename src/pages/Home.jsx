@@ -18,7 +18,7 @@ export default function Home() {
             <header className="home-header">
 
                 <Link
-                    to="/"
+                    to="/inicio"
                     className="brand"
                 >
                     mis15
