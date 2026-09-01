@@ -77,7 +77,7 @@ function AdminEntry() {
                     type="text"
                     value={slug}
                     onChange={(event) => setSlug(event.target.value)}
-                    placeholder="Nombre o slug, por ejemplo: sofia"
+                    placeholder="Nombre"
                     required
                 />
 
@@ -340,6 +340,12 @@ export default function Admin() {
                 >
                     <Link
                         className="secondary-button"
+                        to={`/invitacion/${slug}`}
+                    >
+                        Ver invitación
+                    </Link>
+                    <Link
+                        className="secondary-button"
                         to={`/crear?edit=${encodeURIComponent(
                             invitation.slug
                         )}`}
@@ -347,51 +353,51 @@ export default function Admin() {
                         Editar invitación
                     </Link>
 
-                    <Link
-                        className="secondary-button"
-                        to={`/invitacion/${slug}`}
-                    >
-                        Ver invitación
-                    </Link>
+                    <div style={{
+                        display: "flex",
+                        gap: "8px",
+                        alignItems: "center"
+                    }}>
 
-                    <button
-                        type="button"
-                        className="secondary-button"
-                        title={copied ? "¡Copiado!" : "Copiar link"}
-                        aria-label={copied ? "¡Copiado!" : "Copiar link"}
-                        onClick={copyLink}
-                    >
-                        <HugeiconsIcon
-                            icon={copied ? CopyCheckIcon : CopyIcon}
-                            size={15}
-                        />
-                    </button>
+                        <button
+                            type="button"
+                            className="secondary-button"
+                            title={copied ? "¡Copiado!" : "Copiar link"}
+                            aria-label={copied ? "¡Copiado!" : "Copiar link"}
+                            onClick={copyLink}
+                        >
+                            <HugeiconsIcon
+                                icon={copied ? CopyCheckIcon : CopyIcon}
+                                size={15}
+                            />
+                        </button>
 
-                    <button
-                        type="button"
-                        className="secondary-button"
-                        title="Compartir"
-                        aria-label="Compartir"
-                        onClick={shareLink}
-                    >
-                        <HugeiconsIcon
-                            icon={Share08Icon}
-                            size={15}
-                        />
-                    </button>
+                        <button
+                            type="button"
+                            className="secondary-button"
+                            title="Compartir"
+                            aria-label="Compartir"
+                            onClick={shareLink}
+                        >
+                            <HugeiconsIcon
+                                icon={Share08Icon}
+                                size={15}
+                            />
+                        </button>
 
-                    <button
-                        type="button"
-                        className="danger-button"
-                        title="Eliminar"
-                        aria-label="Eliminar"
-                        onClick={() => setShowDeleteModal(true)}
-                    >
-                        <HugeiconsIcon
-                            icon={Delete03Icon}
-                            size={15}
-                        />
-                    </button>
+                        <button
+                            type="button"
+                            className="danger-button"
+                            title="Eliminar"
+                            aria-label="Eliminar"
+                            onClick={() => setShowDeleteModal(true)}
+                        >
+                            <HugeiconsIcon
+                                icon={Delete03Icon}
+                                size={15}
+                            />
+                        </button>
+                    </div>
                 </div>
             </section>
 
