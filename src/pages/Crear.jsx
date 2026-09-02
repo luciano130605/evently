@@ -627,7 +627,8 @@ export default function Crear() {
                             <label>
                                 Descripción
                                 <textarea
-                                    placeholder={form.dressDescription || ""}
+                                    value={form.dressDescription || ""}
+                                    placeholder=""
                                     onChange={(event) => update("dressDescription", event.target.value)}
                                     disabled={form.showDressCode === false}
                                 />
@@ -770,6 +771,13 @@ export default function Crear() {
                                     description: "Elegante y sofisticado",
                                     color: "#7668A8",
                                     background: "#F5F3FA"
+                                },
+                                {
+                                    id: "xv",
+                                    name: "XV",
+                                    description: "Romántica y sofisticada",
+                                    color: "#8B203A",
+                                    background: "#171B33"
                                 }
                             ].map((theme) => (
                                 <button

@@ -52,8 +52,23 @@ const THEMES = {
         background: "#FAF9FD",
         soft: "#F1EFF8",
         text: "#302B3D"
+    },
+    xv: {
+        primary: "#8B203A",
+        gold: "#D9B26B",
+        secondary: "#F6ECE2",
+        background: "#171B33",
+        background2: "#0D1226",
+        soft: "#1E2340",
+        text: "#F4EFE4",
+        textSoft: "#C9CEE8",
+        textStrong: "#FFFCF6"
     }
 };
+
+export function getInvitationThemeConfig(templateKey) {
+    return THEMES[templateKey] || THEMES.lavender;
+}
 
 export default function Invitacion() {
     const { slug } = useParams();
@@ -80,8 +95,9 @@ export default function Invitacion() {
         };
     }, [slug]);
 
-    const invitationTheme = THEMES[invitation.template] || THEMES.lavender;
+    const invitationTheme = getInvitationThemeConfig(invitation.template);
     const isXvEvent = /(xv|quince|15)/i.test(String(invitation.eventType || ""));
+    const isXvTheme = String(invitation.template || "").toLowerCase() === "xv";
     const showDressCode = Boolean(invitation.showDressCode ?? isXvEvent);
     const showPhotoAlbum = Boolean(invitation.showPhotoAlbum ?? Boolean(invitation.googlePhotosUrl));
 
@@ -183,18 +199,147 @@ export default function Invitacion() {
 
     return (
         <main
-            className="public-invitation"
-            style={{
-                "--invite-primary": invitationTheme.primary,
-                "--invite-secondary": "#F4F0FF",
-                "--invite-background": "#FFFFFF",
-                "--invite-soft": "#F8F6FC",
-                "--invite-text": "#302A43"
-            }}
+            className={`public-invitation${isXvTheme ? " xv-theme" : ""}`}
+            style={
+                isXvTheme
+                    ? {
+                        "--invite-primary": invitationTheme.primary,
+                        "--invite-gold": invitationTheme.gold,
+                        "--invite-secondary": invitationTheme.secondary,
+                        "--invite-background": invitationTheme.background,
+                        "--invite-background-2": invitationTheme.background2,
+                        "--invite-soft": invitationTheme.soft,
+                        "--invite-text": invitationTheme.text,
+                        "--invite-text-soft": invitationTheme.textSoft,
+                        "--invite-text-strong": invitationTheme.textStrong
+                    }
+                    : {
+                        "--invite-primary": invitationTheme.primary,
+                        "--invite-secondary": "#F4F0FF",
+                        "--invite-background": "#FFFFFF",
+                        "--invite-soft": "#F8F6FC",
+                        "--invite-text": "#302A43"
+                    }
+            }
         >
             <section className="invitation-cover">
                 <div className="cover-decoration cover-decoration-one" />
                 <div className="cover-decoration cover-decoration-two" />
+
+                {isXvTheme && (
+                    <>
+                        <div className="xv-disco">
+                            <div className="xv-disco-string" />
+                            <div className="xv-disco-ball" />
+                            <span className="xv-sparkle" />
+                            <span className="xv-sparkle" />
+                            <span className="xv-sparkle" />
+                            <span className="xv-sparkle" />
+                            <span className="xv-sparkle" />
+                            <span className="xv-sparkle" />
+                            <span className="xv-sparkle" />
+                            <span className="xv-sparkle" />
+                        </div>
+                        <div className="xv-disco-beam" />
+                        <div className="xv-disco-beam" />
+                        <div className="xv-disco-beam" />
+
+                        <svg className="xv-flowers xv-flowers-left" viewBox="0 0 168 168" aria-hidden="true">
+                            <g fill="#3a5a3f">
+                                <ellipse cx="22" cy="158" rx="2.6" ry="38" transform="rotate(18 22 158)" />
+                                <ellipse cx="56" cy="164" rx="2.2" ry="30" transform="rotate(-12 56 164)" />
+                                <ellipse cx="8" cy="150" rx="1.8" ry="22" transform="rotate(38 8 150)" />
+                                <path d="M24 128 Q36 112 24 96" stroke="#3a5a3f" strokeWidth="2" fill="none" />
+                                <path d="M50 132 Q40 118 50 104" stroke="#3a5a3f" strokeWidth="1.6" fill="none" />
+                            </g>
+                            <g fill="#8B203A">
+                                <ellipse cx="42" cy="122" rx="20" ry="11" transform="rotate(15 42 122)" />
+                                <ellipse cx="24" cy="104" rx="20" ry="11" transform="rotate(-28 24 104)" />
+                                <ellipse cx="16" cy="136" rx="17" ry="10" transform="rotate(62 16 136)" />
+                                <ellipse cx="52" cy="142" rx="16" ry="9" transform="rotate(95 52 142)" />
+                                <circle cx="32" cy="123" r="8.5" fill="#D9B26B" />
+                            </g>
+                            <g fill="#F6ECE2">
+                                <ellipse cx="70" cy="108" rx="12" ry="7" transform="rotate(-20 70 108)" />
+                                <ellipse cx="78" cy="126" rx="11" ry="6.5" transform="rotate(30 78 126)" />
+                                <ellipse cx="60" cy="90" rx="10" ry="6" transform="rotate(-46 60 90)" />
+                                <circle cx="72" cy="116" r="4.6" fill="#8B203A" />
+                                <circle cx="58" cy="93" r="3.6" fill="#D9B26B" />
+                            </g>
+                            <g fill="#8B203A" opacity=".85">
+                                <ellipse cx="96" cy="94" rx="9" ry="5.5" transform="rotate(-10 96 94)" />
+                                <circle cx="96" cy="94" r="3" fill="#D9B26B" />
+                            </g>
+                            <circle cx="92" cy="74" r="2.8" fill="#D9B26B" />
+                            <circle cx="106" cy="60" r="1.8" fill="#D9B26B" />
+                            <circle cx="112" cy="82" r="1.4" fill="#F6ECE2" />
+                        </svg>
+
+                        <svg className="xv-flowers xv-flowers-right" viewBox="0 0 168 168" aria-hidden="true">
+                            <g fill="#3a5a3f">
+                                <ellipse cx="22" cy="158" rx="2.6" ry="38" transform="rotate(18 22 158)" />
+                                <ellipse cx="56" cy="164" rx="2.2" ry="30" transform="rotate(-12 56 164)" />
+                                <ellipse cx="8" cy="150" rx="1.8" ry="22" transform="rotate(38 8 150)" />
+                                <path d="M24 128 Q36 112 24 96" stroke="#3a5a3f" strokeWidth="2" fill="none" />
+                                <path d="M50 132 Q40 118 50 104" stroke="#3a5a3f" strokeWidth="1.6" fill="none" />
+                            </g>
+                            <g fill="#8B203A">
+                                <ellipse cx="42" cy="122" rx="20" ry="11" transform="rotate(15 42 122)" />
+                                <ellipse cx="24" cy="104" rx="20" ry="11" transform="rotate(-28 24 104)" />
+                                <ellipse cx="16" cy="136" rx="17" ry="10" transform="rotate(62 16 136)" />
+                                <ellipse cx="52" cy="142" rx="16" ry="9" transform="rotate(95 52 142)" />
+                                <circle cx="32" cy="123" r="8.5" fill="#D9B26B" />
+                            </g>
+                            <g fill="#F6ECE2">
+                                <ellipse cx="70" cy="108" rx="12" ry="7" transform="rotate(-20 70 108)" />
+                                <ellipse cx="78" cy="126" rx="11" ry="6.5" transform="rotate(30 78 126)" />
+                                <ellipse cx="60" cy="90" rx="10" ry="6" transform="rotate(-46 60 90)" />
+                                <circle cx="72" cy="116" r="4.6" fill="#8B203A" />
+                                <circle cx="58" cy="93" r="3.6" fill="#D9B26B" />
+                            </g>
+                            <g fill="#8B203A" opacity=".85">
+                                <ellipse cx="96" cy="94" rx="9" ry="5.5" transform="rotate(-10 96 94)" />
+                                <circle cx="96" cy="94" r="3" fill="#D9B26B" />
+                            </g>
+                            <circle cx="92" cy="74" r="2.8" fill="#D9B26B" />
+                            <circle cx="106" cy="60" r="1.8" fill="#D9B26B" />
+                            <circle cx="112" cy="82" r="1.4" fill="#F6ECE2" />
+                        </svg>
+
+                        <svg className="xv-flowers xv-flowers-topleft" viewBox="0 0 100 100" aria-hidden="true">
+                            <g fill="#3a5a3f"><path d="M10 90 Q20 60 8 30" stroke="#3a5a3f" strokeWidth="2" fill="none" /></g>
+                            <g fill="#8B203A">
+                                <ellipse cx="16" cy="34" rx="12" ry="7" transform="rotate(20 16 34)" />
+                                <ellipse cx="6" cy="20" rx="11" ry="6.5" transform="rotate(-30 6 20)" />
+                                <circle cx="12" cy="27" r="4.5" fill="#D9B26B" />
+                            </g>
+                            <g fill="#F6ECE2">
+                                <ellipse cx="32" cy="14" rx="9" ry="5.5" transform="rotate(-15 32 14)" />
+                                <circle cx="32" cy="14" r="3.4" fill="#8B203A" />
+                            </g>
+                        </svg>
+
+                        <svg className="xv-flowers xv-flowers-topright" viewBox="0 0 100 100" aria-hidden="true">
+                            <g fill="#3a5a3f"><path d="M10 90 Q20 60 8 30" stroke="#3a5a3f" strokeWidth="2" fill="none" /></g>
+                            <g fill="#8B203A">
+                                <ellipse cx="16" cy="34" rx="12" ry="7" transform="rotate(20 16 34)" />
+                                <ellipse cx="6" cy="20" rx="11" ry="6.5" transform="rotate(-30 6 20)" />
+                                <circle cx="12" cy="27" r="4.5" fill="#D9B26B" />
+                            </g>
+                            <g fill="#F6ECE2">
+                                <ellipse cx="32" cy="14" rx="9" ry="5.5" transform="rotate(-15 32 14)" />
+                                <circle cx="32" cy="14" r="3.4" fill="#8B203A" />
+                            </g>
+                        </svg>
+
+                        <span className="xv-petal" style={{ left: "18%", width: "9px", height: "6px", background: "#8B203A", animationDuration: "9s", animationDelay: "0s" }} />
+                        <span className="xv-petal" style={{ left: "36%", width: "7px", height: "5px", background: "#D9B26B", animationDuration: "11s", animationDelay: "2.5s" }} />
+                        <span className="xv-petal" style={{ left: "58%", width: "8px", height: "6px", background: "#F6ECE2", animationDuration: "10s", animationDelay: "4.5s" }} />
+                        <span className="xv-petal" style={{ left: "74%", width: "7px", height: "5px", background: "#8B203A", animationDuration: "8.5s", animationDelay: "1.2s" }} />
+                        <span className="xv-petal" style={{ left: "87%", width: "6px", height: "4.5px", background: "#D9B26B", animationDuration: "12s", animationDelay: "6s" }} />
+                        <span className="xv-petal" style={{ left: "12%", width: "6px", height: "4.5px", background: "#F6ECE2", animationDuration: "9.5s", animationDelay: "3.4s" }} />
+                    </>
+                )}
 
                 <div className="cover-content">
                     <span className="cover-kicker">ESTÁS INVITADO/A</span>
@@ -233,6 +378,8 @@ export default function Invitacion() {
                     </button>
                 </div>
             </section>
+
+            
 
             <Countdown
                 id="countdown-section"
@@ -337,11 +484,7 @@ export default function Invitacion() {
                 />
             )}
 
-            <section className="invitation-cta">
-
-
-
-            </section>
+          
 
             <footer className="invitation-footer">
                 <img

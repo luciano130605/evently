@@ -458,3 +458,78 @@ export function getLocalInvitationFallback(slug) {
     const invitations = readLocalInvitations();
     return invitations[slug] || demoInvitation;
 }
+
+export function getRsvpStats(rows = []) {
+    const safeRows = Array.isArray(rows) ? rows : [];
+    const total = safeRows.length;
+    const adults = safeRows.filter((row) => row.isOver18 !== false).length;
+    const minors = total - adults;
+    const restrictions = safeRows.filter((row) => {
+        const restriction = String(row.restriction || "").trim();
+        return restriction && restriction.toLowerCase() !== "ninguna";
+    }).length;
+    const allergies = safeRows.filter((row) => {
+        const allergy = String(row.allergy || "").trim();
+        return Boolean(allergy);
+    }).length;
+
+    return {
+        total,
+        adults,
+        minors,
+        restrictions,
+        allergies
+    };
+}
+
+export function buildRsvpsCsv(rows = []) {
+    const safeRows = Array.isArray(rows) ? rows : [];
+    const headers = [
+        "name",
+        "firstName",
+        "lastName",
+        "restriction",
+        "allergy",
+        "detail",
+        "isOver18",
+        "createdAt"
+    ];
+
+    const escapeCell = (value) => {
+        const text = String(value ?? "");
+        if (text.includes(",") || text.includes("\n") || text.includes('"')) {
+            return `"${text.replace(/"/g, '""')}"`;
+        }
+        return text;
+    };
+
+    const body = safeRows.map((row) => {
+        const firstName = String(row.firstName || row.first_name || splitNameParts(String(row.name || "")).firstName || "").trim();
+        const lastName = String(row.lastName || row.last_name || splitNameParts(String(row.name || "")).lastName || "").trim();
+        const name = String(row.name || [firstName, lastName].filter(Boolean).join(" ") || "").trim();
+
+        return [
+            name,
+            firstName,
+            lastName,
+            row.restriction || "Ninguna",
+            row.allergy || "",
+            row.detail || "",
+            row.isOver18 === false ? "false" : "true",
+            row.createdAt || row.created_at || ""
+        ].map(escapeCell).join(",");
+    }).join("\n");
+
+    return [headers.join(","), body].filter(Boolean).join("\n");
+}
+
+export function buildConfirmationQrUrl(slug = "", baseUrl = "") {
+    const safeSlug = slugify(String(slug || ""));
+    const cleanBase = String(baseUrl || (typeof window !== "undefined" ? window.location.origin : "") || "").replace(/\/$/, "");
+
+    if (!safeSlug) {
+        return "";
+    }
+
+    return `${cleanBase}/confirmar/${encodeURIComponent(safeSlug)}`;
+}

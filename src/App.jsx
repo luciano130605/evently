@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Home from "./pages/Home";
 import Crear from "./pages/Crear";
 import Invitacion from "./pages/Invitacion";
+import ConfirmarAsistencia from "./pages/ConfirmarAsistencia";
 import Admin from "./pages/Admin";
 import { applyTheme, resolveThemePreference } from "./lib/theme";
 
@@ -34,6 +35,11 @@ function App() {
                 <Route
                     path="/invitacion/:slug"
                     element={<Invitacion />}
+                />
+
+                <Route
+                    path="/confirmar/:slug"
+                    element={<ConfirmarAsistencia />}
                 />
 
                 <Route

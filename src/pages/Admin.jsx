@@ -11,13 +11,18 @@ import {
     CopyCheckIcon,
     CopyIcon,
     Delete03Icon,
+    Download02Icon,
     LockedIcon,
+    QrCode01Icon,
     Share08Icon,
     UserGroup02Icon
 } from "@hugeicons/core-free-icons";
 
 import {
+    buildConfirmationQrUrl,
+    buildRsvpsCsv,
     deleteInvitation,
+    getRsvpStats,
     loadInvitationBySlug,
     loadRsvpsBySlug
 } from "../lib/invitations";
@@ -132,13 +137,15 @@ export default function Admin({ theme, onToggleTheme }) {
     const [deleting, setDeleting] = useState(false);
     const [page, setPage] = useState(1);
     const [demoRsvps, setDemoRsvps] = useState([]);
-
-    // Estado para saber si el link fue copiado
     const [copied, setCopied] = useState(false);
+    const [qrOpen, setQrOpen] = useState(false);
 
     const visibleRsvps = demoRsvps.length > 0 ? demoRsvps : rsvps;
+    const stats = getRsvpStats(visibleRsvps);
     const totalPages = Math.max(1, Math.ceil(visibleRsvps.length / 10));
     const paginatedRsvps = visibleRsvps.slice((page - 1) * 10, page * 10);
+    const confirmationUrl = buildConfirmationQrUrl(slug, window.location.origin);
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(confirmationUrl)}&size=220x220&charset-source=UTF-8&charset-target=UTF-8&margin=1`;
 
     useEffect(() => {
         let active = true;
@@ -227,6 +234,53 @@ export default function Admin({ theme, onToggleTheme }) {
         }
 
         await copyLink();
+    };
+
+    const shareQr = async () => {
+        const shareData = {
+            title: `Confirmar asistencia - ${invitation?.name || "Evento"}`,
+            text: `Confirmá tu asistencia aquí: ${confirmationUrl}`,
+            url: confirmationUrl
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+                return;
+            } catch {
+                // fallback
+            }
+        }
+
+        await navigator.clipboard.writeText(confirmationUrl);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2000);
+    };
+
+    const downloadQr = () => {
+        if (!confirmationUrl) {
+            return;
+        }
+
+        const link = document.createElement("a");
+        link.href = qrCodeUrl;
+        link.download = `${slug || "confirmacion"}-qr.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const exportCsv = () => {
+        const csvContent = buildRsvpsCsv(visibleRsvps);
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${slug || "confirmaciones"}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const removeInvitation = async () => {
@@ -419,6 +473,21 @@ export default function Admin({ theme, onToggleTheme }) {
 
                         <button
                             type="button"
+                            className="secondary-button"
+                            title="QR de confirmación"
+                            aria-label="QR de confirmación"
+                            onClick={() => setQrOpen(true)}
+                        >
+                            <span style={{ display: "flex", alignItems: "center" }}>
+                                <HugeiconsIcon icon={QrCode01Icon} size={15} />
+
+                            </span>
+                        </button>
+
+
+
+                        <button
+                            type="button"
                             className="danger-button"
                             title="Eliminar"
                             aria-label="Eliminar"
@@ -437,6 +506,45 @@ export default function Admin({ theme, onToggleTheme }) {
                 <p className="error-message admin-action-error">
                     {error}
                 </p>
+            )}
+
+            {qrOpen && (
+                <div
+                    className="modal-backdrop"
+                    role="presentation"
+                    onMouseDown={(event) => {
+                        if (event.target === event.currentTarget) {
+                            setQrOpen(false);
+                        }
+                    }}
+                >
+                    <section
+                        className="delete-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="qr-title"
+                    >
+                        <span className="section-kicker">CONFIRMAR ASISTENCIA</span>
+                        <h2 id="qr-title">Código QR</h2>
+
+                        <div className="admin-qr-box">
+                            {confirmationUrl && (
+                                <img src={qrCodeUrl} alt="QR de confirmación" className="admin-qr-image" />
+                            )}
+                        </div>
+
+                        <p className="admin-qr-url">{confirmationUrl}</p>
+
+                        <div className="delete-modal-actions">
+                            <button type="button" className="secondary-button" onClick={shareQr}>
+                                Compartir
+                            </button>
+                            <button type="button" className="primary-button" onClick={downloadQr}>
+                                Descargar QR
+                            </button>
+                        </div>
+                    </section>
+                </div>
             )}
 
             {showDeleteModal && (
@@ -510,9 +618,37 @@ export default function Admin({ theme, onToggleTheme }) {
                         />
                     </div>
 
-                    <div>
-                        <strong>{visibleRsvps.length}</strong>
-                        <span>CONFIRMADOS</span>
+                    <div style={{
+                        display: "flex",
+                        alignItems: "end",
+                        gap: 10
+                    }}>
+                        <strong>{stats.total}</strong>
+                        <span
+                            style={{
+                                marginBottom: 5
+                            }}
+                        >CONFIRMADOS</span>
+                    </div>
+                </div>
+
+                <div className="admin-stat">
+                    <div className="admin-stat-icon">
+                        <HugeiconsIcon
+                            icon={UserGroup02Icon}
+                            size={18}
+                        />
+                    </div>
+
+                    <div style={{
+                        display: "flex",
+                        alignItems: "end",
+                        gap: 10
+                    }}>
+                        <strong>{stats.adults}</strong>
+                        <span style={{
+                            marginBottom: 5
+                        }}>MAYORES</span>
                     </div>
                 </div>
 
@@ -524,28 +660,53 @@ export default function Admin({ theme, onToggleTheme }) {
                         />
                     </div>
 
-                    <div>
-                        <strong>
-                            {
-                                visibleRsvps.filter(
-                                    (item) =>
-                                        item.restriction &&
-                                        item.restriction !== "Ninguna"
-                                ).length
-                            }
-                        </strong>
+                    <div style={{
+                        display: "flex",
+                        alignItems: "end",
+                        gap: 10
+                    }}>
+                        <strong>{stats.restrictions}</strong>
+                        <span style={{
+                            marginBottom: 5
+                        }}>RESTRICCIONES</span>
+                    </div>
+                </div>
 
-                        <span>RESTRICCIONES</span>
+                <div className="admin-stat">
+                    <div className="admin-stat-icon restriction-icon">
+                        <HugeiconsIcon
+                            icon={BeefOffFreeIcons}
+                            size={18}
+                        />
+                    </div>
+
+                    <div style={{
+                        display: "flex",
+                        alignItems: "end",
+                        gap: 10
+                    }}>
+                        <strong>{stats.allergies}</strong>
+                        <span style={{
+                            marginBottom: 5
+                        }}>ALERGIAS</span>
                     </div>
                 </div>
             </section>
 
             <section className="admin-rsvps">
                 <div className="admin-section-title">
-                    <div>
-                        <h2>Confirmaciones</h2>
-                    </div>
-                   
+
+                    <h2>Confirmaciones</h2>
+                    <button
+                        type="button"
+                        className="secondary-button"
+                        title="Exportar CSV"
+                        aria-label="Exportar CSV"
+                        onClick={exportCsv}
+                    >
+                        <span style={{ display: "flex", alignItems: "center" }}><HugeiconsIcon icon={Download02Icon} size={16} /></span>
+                    </button>
+
                 </div>
 
                 {visibleRsvps.length === 0 ? (
@@ -616,6 +777,6 @@ export default function Admin({ theme, onToggleTheme }) {
                     </div>
                 )}
             </section>
-        </main>
+        </main >
     );
 }

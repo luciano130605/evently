@@ -6,11 +6,15 @@ import {
     saveRsvp,
     loadInvitationBySlug,
     loadRsvpsBySlug,
-    slugify
+    slugify,
+    getRsvpStats,
+    buildRsvpsCsv,
+    buildConfirmationQrUrl
 } from "../src/lib/invitations";
 import { demoInvitation } from "../src/data/demoInvitation";
 import { isRequiredFormComplete } from "../src/pages/Crear";
 import { applyTheme, resolveThemePreference } from "../src/lib/theme";
+import { getInvitationThemeConfig } from "../src/pages/Invitacion";
 
 function setupLocalStorage() {
     const storage = {};
@@ -128,6 +132,17 @@ describe("Invitaciones XV - suite completa", () => {
         expect(demoInvitation.mapsUrl).toBe("");
     });
 
+    it("define la paleta XV con los colores del preview", () => {
+        const theme = getInvitationThemeConfig("xv");
+
+        expect(theme).toMatchObject({
+            primary: "#8B203A",
+            gold: "#D9B26B",
+            background: "#171B33",
+            background2: "#0D1226"
+        });
+    });
+
     // ============================================================
     // SLUGIFY
     // ============================================================
@@ -211,6 +226,44 @@ describe("Invitaciones XV - suite completa", () => {
     // ============================================================
 
     describe("invitaciones", () => {
+        it("calcula stats reales de confirmaciones", () => {
+            const rows = [
+                { name: "Ana Pérez", restriction: "Ninguna", allergy: "", isOver18: true },
+                { name: "Luis Pérez", restriction: "Vegetariano", allergy: "", isOver18: false },
+                { name: "Marta Díaz", restriction: "Alergia", allergy: "Frutos secos", isOver18: true },
+                { name: "Tomás Díaz", restriction: "Ninguna", allergy: "", isOver18: false },
+                { name: "Nina López", restriction: "Sin gluten", allergy: "", isOver18: true }
+            ];
+
+            const stats = getRsvpStats(rows);
+
+            expect(stats.total).toBe(5);
+            expect(stats.adults).toBe(3);
+            expect(stats.minors).toBe(2);
+            expect(stats.restrictions).toBe(3);
+            expect(stats.allergies).toBe(1);
+        });
+
+        it("exporta confirmaciones a csv con columnas útiles", () => {
+            const rows = [
+                { name: "Ana Pérez", restriction: "Ninguna", allergy: "", detail: "", isOver18: true },
+                { name: "Luis Pérez", restriction: "Vegetariano", allergy: "", detail: "Sin carne", isOver18: false }
+            ];
+
+            const csv = buildRsvpsCsv(rows);
+
+            expect(csv).toContain("name");
+            expect(csv).toContain("Ana Pérez");
+            expect(csv).toContain("Vegetariano");
+            expect(csv).toContain("Sin carne");
+        });
+
+        it("genera un qr que abre una ruta propia de confirmación", () => {
+            const url = buildConfirmationQrUrl("sofia", "https://ejemplo.com");
+
+            expect(url).toBe("https://ejemplo.com/confirmar/sofia");
+        });
+
         it("crea una invitación válida", async () => {
             const invitation = makeInvitation();
 
