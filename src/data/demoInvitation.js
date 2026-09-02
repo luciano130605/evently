@@ -13,12 +13,12 @@ export const demoInvitation = {
     timeStart: "21:00",
     timeEnd: "00:00",
 
-    venue: "Salón Ej.",
+    venue: "Casa",
 
-    address: "Av. Ej 125",
+    address: "Ej 125, CABA",
 
     mapsUrl:
-        "https://www.google.com/maps/search/Av.+Ej+125/@-34.6209926,-58.4287506,15z?entry=ttu&g_ep=EgoyMDI2MDgzMC4wIKXMDSoASAFQAw%3D%3D",
+        "https://www.google.com/maps/search/Ej+125/@-34.6209926,-58.4287506,15z?entry=ttu&g_ep=EgoyMDI2MDgzMC4wIKXMDSoASAFQAw%3D%3D",
 
     dressCode: "Elegante",
 
@@ -28,14 +28,14 @@ export const demoInvitation = {
     dressColorsNotAllowed: "Blanco, rojo",
 
 
-    requireAgeConfirmation: true,
-    showDressCode: true,
-    showPhotoAlbum: true,
-    showGiftSection: true,
+    requireAgeConfirmation: false,
+    showDressCode: false,
+    showPhotoAlbum: false,
+    showGiftSection: false,
 
     googlePhotosUrl: "https://photos.google.com/share/AF1QipP0Z6BNVdC2f8wR4T5aFj0gAt17hzvLhA4nPzvM?key=Q0pLNkR5T3J3b2NKT0J3aGxXOWVQ",
 
-    alias: "juan.cumple",
+    alias: "juan1",
 
     cbu: "0000000000000000000000",
 
@@ -53,26 +53,27 @@ export const xvDemoInvitation = {
 
     name: "Sofía",
 
-    eventType: "XV años",
+    eventType: "Cumpleaños",
 
     subtitle: "Te espero en mi fiesta",
 
     date: "2026-11-15",
 
-    time: "21:30",
-    timeStart: "21:30",
-    timeEnd: "01:00",
+    time: "23:00",
+    timeStart: "23:00",
+    timeEnd: "05:00",
 
-    venue: "Jardín de las Flores",
+    venue: "Salón Ej.",
 
-    address: "Avenida del Sol 245, CABA",
+    address: "Av. Ej 125, CABA",
 
-    mapsUrl: "https://maps.google.com/?q=Jardin+de+las+Flores+CABA",
+    mapsUrl:
+        "https://www.google.com/maps/search/Av.+Ej+125/@-34.6209926,-58.4287506,15z?entry=ttu&g_ep=EgoyMDI2MDgzMC4wIKXMDSoASAFQAw%3D%3D",
 
     dressCode: "Elegante",
 
     dressDescription:
-        "Vestite con glamour y brillo. No se permite blanco ni rojo para mantener la estética del evento.",
+        "Vestite con glamour y brillo. No se permite blanco ni rojo.",
 
     dressColorsNotAllowed: "Blanco, rojo",
 

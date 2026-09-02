@@ -506,7 +506,7 @@ export default function Invitacion() {
                 <section className="dress-section">
                     <div className="dress-content">
                         <span className="section-kicker">DRESS CODE</span>
-                        <h2>{invitation.dressCode || "Elegante"}</h2>
+                        <h2>{invitation.dressCode || ""}</h2>
                         <p>{invitation.dressDescription || "Elegí tu mejor look para acompañarnos."}</p>
                         {invitation.dressColorsNotAllowed && (
                             <div className="dress-colors-not-allowed">
