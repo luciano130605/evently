@@ -350,7 +350,7 @@ export default function Crear() {
                             />
                         </label>
 
-                        <label>
+                        <label className="select">
                             <div>
                                 Tipo de evento
                             </div>
