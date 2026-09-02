@@ -398,7 +398,7 @@ img {
   padding: 9px 16px;
 
   border-radius: 999px;
-
+  border: none;
   background: var(--lav);
   color: var(--purple);
 
@@ -802,21 +802,85 @@ img {
   width: 100%;
 }
 
-/* PREVIEW */
+/* =========================================================
+   CONTENEDOR 3D
+========================================================= */
 
 .home-preview {
   display: flex;
   justify-content: center;
+
+  perspective: 1200px;
 }
+
+
+/* =========================================================
+   ESCENA
+========================================================= */
+
+.preview-3d-scene {
+  width: 330px;
+  height: 480px;
+
+  position: relative;
+
+  perspective: 1200px;
+
+  cursor: pointer;
+
+  /* LA FLOTACIÓN VA ACÁ */
+  animation: previewFloat 5s ease-in-out infinite;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+/* =========================================================
+   CARD 3D
+========================================================= */
 
 .preview-card {
   width: 330px;
-  min-height: 480px;
-
-  padding: 43px 35px;
+  height: 480px;
 
   position: relative;
-  overflow: hidden;
+
+  /* CLAVE PARA QUE LAS DOS CARAS FUNCIONEN */
+  transform-style: preserve-3d;
+
+  /* SOLO el giro vive acá */
+  transform: rotateY(0deg);
+
+  transition:
+    transform 0.9s cubic-bezier(.2, .75, .25, 1);
+
+  /* MUY IMPORTANTE */
+  animation: none;
+}
+
+
+/* =========================================================
+   CARD GIRADA
+========================================================= */
+
+.preview-3d-scene.is-flipped .preview-card {
+  transform: rotateY(180deg);
+}
+
+
+/* =========================================================
+   CARAS
+========================================================= */
+
+.preview-face {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  box-sizing: border-box;
 
   display: flex;
   flex-direction: column;
@@ -824,7 +888,22 @@ img {
 
   text-align: center;
 
+  overflow: hidden;
+
   border-radius: 170px 170px 32px 32px;
+
+  /* CLAVE */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+
+/* =========================================================
+   FRENTE
+========================================================= */
+
+.preview-front {
+  padding: 43px 35px;
 
   background:
     linear-gradient(150deg,
@@ -835,13 +914,13 @@ img {
   box-shadow:
     0 35px 80px rgba(74, 59, 132, .18);
 
-  transform: rotate(2deg);
-
-  animation:
-    previewFloat 5s ease-in-out infinite;
+  transform: rotateY(0deg);
 }
 
-.preview-card::before {
+
+/* Decoración */
+
+.preview-front::before {
   content: '';
 
   position: absolute;
@@ -859,7 +938,8 @@ img {
   opacity: .8;
 }
 
-.preview-card::after {
+
+.preview-front::after {
   content: '';
 
   position: absolute;
@@ -877,28 +957,46 @@ img {
   opacity: .7;
 }
 
+
+/* =========================================================
+   TEXTO FRENTE
+========================================================= */
+
 .preview-top {
+  position: relative;
+  z-index: 2;
+
   margin-top: 28px;
 
   color: var(--purple);
 
   font-size: 9px;
   font-weight: 800;
+
   letter-spacing: .2em;
 }
 
+
 .preview-card strong {
+  position: relative;
+  z-index: 2;
+
   margin-top: 30px;
 
   font-family: 'Baloo 2', sans-serif;
 
   font-size: 70px;
+
   line-height: .8;
 
   font-weight: 800;
 }
 
+
 .preview-sub {
+  position: relative;
+  z-index: 2;
+
   margin-top: 8px;
 
   color: var(--sub);
@@ -907,7 +1005,11 @@ img {
   font-weight: 700;
 }
 
+
 .preview-date {
+  position: relative;
+  z-index: 2;
+
   margin-top: 28px;
 
   padding: 8px 15px;
@@ -922,25 +1024,40 @@ img {
   font-weight: 800;
 }
 
+
 .preview-line {
+  position: relative;
+  z-index: 2;
+
   width: 45px;
   height: 1px;
 
   margin: 35px 0 15px;
 
   background: var(--purple);
+
   opacity: .4;
 }
 
+
 .preview-card small {
+  position: relative;
+  z-index: 2;
+
   color: var(--sub);
 
   font-size: 8px;
+
   font-weight: 800;
+
   letter-spacing: .15em;
 }
 
+
 .preview-count {
+  position: relative;
+  z-index: 2;
+
   margin-top: 3px;
 
   font-family: 'Baloo 2', sans-serif;
@@ -948,18 +1065,163 @@ img {
   color: var(--purple);
 
   font-size: 52px;
+
   line-height: 1;
+
   font-weight: 800;
 }
 
+
 .preview-bottom {
+  position: relative;
+  z-index: 2;
+
   margin-top: auto;
 
   color: var(--sub);
 
   font-size: 8px;
+
   font-weight: 800;
+
   letter-spacing: .15em;
+}
+
+
+/* =========================================================
+   ATRÁS
+========================================================= */
+
+.preview-back {
+  padding: 43px 35px;
+
+  background:
+    linear-gradient(150deg,
+      var(--lav),
+      var(--lav-2) 55%,
+      var(--mint));
+
+  box-shadow:
+    0 35px 80px rgba(74, 59, 132, .18);
+
+  /* ESTA CARA YA ESTÁ DADA VUELTA */
+  transform: rotateY(180deg);
+}
+
+
+/* Decoraciones atrás */
+
+.preview-back::before {
+  content: '';
+
+  position: absolute;
+
+  width: 180px;
+  height: 180px;
+
+  border-radius: 50%;
+
+  top: -100px;
+  right: -50px;
+
+  background: var(--mint);
+
+  opacity: .8;
+}
+
+
+.preview-back::after {
+  content: '';
+
+  position: absolute;
+
+  width: 150px;
+  height: 150px;
+
+  border-radius: 50%;
+
+  bottom: -90px;
+  left: -70px;
+
+  background: var(--coral);
+
+  opacity: .7;
+}
+
+
+/* =========================================================
+   QR
+========================================================= */
+
+.preview-qr-wrapper {
+  position: relative;
+  z-index: 5;
+
+  margin-top: 25px;
+
+  padding: 14px;
+
+  background: var(--lav);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 15px 35px rgba(74, 59, 132, .16);
+}
+
+.preview-qr {
+  width: 210px;
+  height: 170px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px;
+
+  background: var(--lav);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+}
+
+.preview-qr svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+
+.preview-qr-label {
+  position: relative;
+  z-index: 5;
+
+  margin-top: 17px;
+
+  color: var(--purple);
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: .15em;
+}
+
+
+/* =========================================================
+   FLUTUACIÓN
+========================================================= */
+
+@keyframes previewFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .home-features {
@@ -3889,36 +4151,7 @@ img {
   animation: flowerSway 5.5s ease-in-out infinite;
 }
 
-.public-invitation.xv-theme .xv-flowers-left {
-  left: -16px;
-  transform-origin: bottom left;
-}
 
-.public-invitation.xv-theme .xv-flowers-right {
-  right: -16px;
-  transform-origin: bottom right;
-  transform: scaleX(-1);
-  animation-delay: -2.7s;
-}
-
-.public-invitation.xv-theme .xv-flowers-topleft,
-.public-invitation.xv-theme .xv-flowers-topright {
-  position: absolute;
-  top: 14px;
-  width: 64px;
-  height: 64px;
-  z-index: 3;
-}
-
-.public-invitation.xv-theme .xv-flowers-topleft {
-  left: 8px;
-  transform: rotate(-8deg);
-}
-
-.public-invitation.xv-theme .xv-flowers-topright {
-  right: 8px;
-  transform: scaleX(-1) rotate(-8deg);
-}
 
 .public-invitation.xv-theme .xv-petal {
   position: absolute;
@@ -5464,5 +5697,117 @@ img {
   .metrics-bottleneck-row .bottleneck-label {
     flex-basis: 110px;
     font-size: 10px;
+  }
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Playfair+Display:ital,wght@0,600;1,500&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap');
+
+.public-invitation.garden-theme {
+  --invite-primary: #A9707A;
+  --invite-secondary: #F3E4E9;
+  --invite-background: #FBF3F1;
+  --invite-soft: #F7E9E6;
+  --invite-text: #5C3A3E;
+  font-family: 'Nunito Sans', sans-serif;
+}
+
+.garden-cover {
+  position: relative;
+  background: linear-gradient(180deg, #FBF3F1 0%, #F7E9E6 60%, #F3E4E9 100%);
+  overflow: hidden;
+}
+
+.garden-vine {
+  position: absolute;
+  width: 210px;
+  opacity: .9;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.garden-vine-left {
+  top: -10px;
+  left: -30px;
+  transform: rotate(-8deg);
+}
+
+.garden-vine-right {
+  bottom: -10px;
+  right: -30px;
+  transform: rotate(172deg);
+}
+
+.garden-cover-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 460px;
+}
+
+.garden-kicker {
+  display: inline-block;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #A9707A;
+  letter-spacing: .04em;
+}
+
+.garden-xv {
+  margin-top: 12px;
+  font-family: 'Caveat', cursive;
+  font-size: clamp(70px, 15vw, 110px);
+  font-weight: 600;
+  line-height: .75;
+  color: #A9707A;
+  transform: rotate(-2deg);
+}
+
+.garden-name {
+  margin-top: 14px;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(42px, 8vw, 66px);
+  font-weight: 600;
+  color: #5C3A3E;
+}
+
+.garden-divider {
+  width: 46px;
+  height: 46px;
+  margin: 22px auto;
+  opacity: .75;
+  display: block;
+}
+
+.garden-date {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  font-style: italic;
+  color: #7A5257;
+  text-transform: capitalize;
+}
+
+.garden-time {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #A9707A;
+  letter-spacing: .06em;
+}
+
+.garden-calendar-button {
+  background: #A9707A !important;
+  color: #FBF3F1 !important;
+  border: none !important;
+  box-shadow: 0 14px 30px rgba(169, 112, 122, .3);
+}
+
+.garden-arrow-button {
+  color: #A9707A;
+  margin-top: 30px;
+}
+
+@media (max-width: 600px) {
+  .garden-vine {
+    width: 150px;
   }
 }

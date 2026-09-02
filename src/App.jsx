@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import Home from "./pages/Home";
 import Crear from "./pages/Crear";
+import EntradaDemo from "./pages/EntradaDemo";
 import Invitacion from "./pages/Invitacion";
 import ConfirmarAsistencia from "./pages/ConfirmarAsistencia";
 import Admin from "./pages/Admin";
@@ -47,6 +48,11 @@ function App() {
                 <Route
                     path="/admin/:slug"
                     element={<Admin theme={theme} onToggleTheme={toggleTheme} />}
+                />
+
+                <Route
+                    path="/invitacion/entrada/demo"
+                    element={<EntradaDemo />}
                 />
 
                 <Route

@@ -1,0 +1,843 @@
+/* =========================================================
+   ENTRADA DEMO · EVENTLY
+   MISMA IDENTIDAD VISUAL QUE .preview-card
+========================================================= */
+
+.entry-page {
+    --entry-width: 430px;
+
+    min-height: 100vh;
+    width: 100%;
+
+    position: relative;
+    overflow-x: hidden;
+
+    display: flex;
+    justify-content: center;
+
+    padding: 28px 18px 50px;
+
+    box-sizing: border-box;
+
+    background: var(--lav, #eee9ff);
+
+    color: var(--purple, #6f5aa8);
+
+    font-family: inherit;
+}
+
+
+/* =========================================================
+   FONDO
+========================================================= */
+
+.entry-background {
+    position: fixed;
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(circle at 15% 10%,
+            rgba(255, 255, 255, .8),
+            transparent 30%),
+        radial-gradient(circle at 90% 85%,
+            rgba(255, 180, 190, .25),
+            transparent 30%);
+
+    z-index: 0;
+}
+
+
+/* blobs decorativos */
+
+.entry-background::before,
+.entry-background::after {
+    content: "";
+
+    position: fixed;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.entry-background::before {
+    width: 330px;
+    height: 330px;
+
+    top: -170px;
+    right: -130px;
+
+    background: var(--mint, #dff4ed);
+
+    opacity: .75;
+}
+
+.entry-background::after {
+    width: 280px;
+    height: 280px;
+
+    bottom: -140px;
+    left: -130px;
+
+    background: var(--coral, #ffd8df);
+
+    opacity: .65;
+}
+
+
+/* =========================================================
+   CONTENEDOR
+========================================================= */
+
+.entry-container {
+    position: relative;
+    z-index: 2;
+
+    width: min(100%, var(--entry-width));
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.entry-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 18px;
+
+    padding: 0 5px;
+}
+
+.entry-brand {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: var(--purple, #6f5aa8);
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: .2em;
+}
+
+.entry-brand-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--purple, #6f5aa8);
+
+    box-shadow:
+        0 0 0 4px rgba(111, 90, 168, .08);
+}
+
+.entry-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 7px 11px;
+
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, .62);
+
+    border: 1px solid rgba(111, 90, 168, .1);
+
+    color: var(--sub, #817895);
+
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.entry-status-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #6eb48b;
+
+    box-shadow:
+        0 0 0 3px rgba(110, 180, 139, .12);
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.entry-card {
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 42px;
+
+    background:
+        linear-gradient(150deg,
+            var(--lav, #eee9ff),
+            var(--lav-2, #e7ddff) 55%,
+            var(--mint, #dff4ed));
+
+    border: 1px solid rgba(111, 90, 168, .1);
+
+    box-shadow:
+        0 35px 80px rgba(74, 59, 132, .18),
+        0 10px 25px rgba(74, 59, 132, .07);
+
+    isolation: isolate;
+}
+
+
+/* =========================================================
+   DECORACIONES CARD
+========================================================= */
+
+.entry-card::before {
+    content: "";
+
+    position: absolute;
+
+    width: 240px;
+    height: 240px;
+
+    top: -135px;
+    right: -85px;
+
+    border-radius: 50%;
+
+    background: var(--mint, #dff4ed);
+
+    opacity: .85;
+
+    z-index: -1;
+}
+
+.entry-card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 210px;
+    height: 210px;
+
+    bottom: -125px;
+    left: -95px;
+
+    border-radius: 50%;
+
+    background: var(--coral, #ffd8df);
+
+    opacity: .72;
+
+    z-index: -1;
+}
+
+
+/* =========================================================
+   PARTE SUPERIOR
+========================================================= */
+
+.entry-card-top {
+    position: relative;
+
+    padding: 42px 30px 30px;
+
+    text-align: center;
+}
+
+.entry-kicker {
+    display: inline-block;
+
+    padding: 7px 12px;
+
+    border-radius: 999px;
+
+
+    color: var(--purple, #6f5aa8);
+
+    font-size: 8px;
+    font-weight: 900;
+
+    letter-spacing: .2em;
+}
+
+.entry-event {
+    margin-top: 20px;
+}
+
+.entry-event-type {
+    margin: 0;
+
+    color: var(--sub, #817895);
+
+    font-size: 9px;
+    font-weight: 900;
+
+    letter-spacing: .2em;
+}
+
+.entry-event h1 {
+    margin: 8px 0 0;
+
+    color: var(--purple, #6f5aa8);
+
+    font-family:
+        "Baloo 2",
+        sans-serif;
+
+    font-size: 64px;
+    line-height: .82;
+
+    font-weight: 800;
+
+    letter-spacing: -.04em;
+}
+
+.entry-event-subtitle {
+    margin: 13px 0 0;
+
+    color: var(--sub, #817895);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   INVITADO
+========================================================= */
+
+.entry-guest {
+    position: relative;
+
+    margin: 0 20px;
+
+    padding: 20px;
+
+    text-align: center;
+
+    border-radius: 24px;
+
+    background: var(--lav);
+
+    border: 1px solid var(--border);
+
+    box-shadow:
+        0 10px 25px rgba(74, 59, 132, .06);
+}
+
+.entry-label {
+    display: block;
+
+    color: var(--purple);
+
+    font-size: 8px;
+    font-weight: 900;
+
+    letter-spacing: .18em;
+}
+
+.entry-guest h2 {
+    margin: 7px 0 5px;
+
+    color: var(--ink);
+
+    font-family:
+        "Baloo 2",
+        sans-serif;
+
+    font-size: 21px;
+    line-height: 1.1;
+
+    font-weight: 800;
+}
+
+.entry-guest p {
+    margin: 0;
+
+    color: var(--sub);
+
+    font-size: 9px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   DATOS
+========================================================= */
+
+.entry-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+    margin: 18px 20px 0;
+}
+
+.entry-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 0;
+
+    padding: 14px;
+
+    border-radius: 20px;
+
+    background: var(--lav);
+
+    border: 1px solid var(--border);
+}
+
+.entry-detail-icon {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: var(--lav-2);
+
+    color: var(--purple, #6f5aa8);
+
+    box-shadow:
+        0 5px 12px rgba(74, 59, 132, .08);
+}
+
+.entry-detail span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: var(--sub, #817895);
+
+    font-size: 7px;
+    font-weight: 900;
+
+    letter-spacing: .13em;
+}
+
+.entry-detail strong {
+    display: block;
+
+    color: var(--ink, #302a43);
+
+    font-size: 10px;
+    line-height: 1.3;
+}
+
+
+/* =========================================================
+   LOCATION
+========================================================= */
+
+.entry-location {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+
+    margin: 10px 20px 0;
+
+    padding: 18px;
+
+    border-radius: 22px;
+
+    background: var(--lav);
+
+    border: 1px solid var(--border);
+}
+
+.entry-location-icon {
+    width: 39px;
+    height: 39px;
+
+    flex: 0 0 39px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: var(--lav-2);
+
+    color: var(--purple, #6f5aa8);
+
+    box-shadow:
+        0 5px 14px rgba(74, 59, 132, .08);
+}
+
+.entry-location-content {
+    min-width: 0;
+}
+
+.entry-location span,
+.entry-dress span,
+.entry-access-header span,
+.entry-ticket-code span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--sub, #817895);
+
+    font-size: 7px;
+    font-weight: 900;
+
+    letter-spacing: .14em;
+}
+
+.entry-location h3,
+.entry-dress h3,
+.entry-access h3 {
+    margin: 0;
+
+    color: var(--ink, #302a43);
+
+    font-family:
+        "Baloo 2",
+        sans-serif;
+
+    font-size: 16px;
+    line-height: 1.1;
+
+    font-weight: 800;
+}
+
+.entry-location p {
+    margin: 6px 0 9px;
+
+    color: var(--sub, #817895);
+
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+.entry-map-link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    color: var(--purple, #6f5aa8);
+
+    font-size: 9px;
+    font-weight: 900;
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   DRESS CODE
+========================================================= */
+
+.entry-dress {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+
+    margin: 10px 20px 22px;
+
+    padding: 18px;
+
+    border-radius: 22px;
+
+
+    background: var(--lav);
+
+    border: 1px solid var(--border);
+}
+
+.entry-dress-icon {
+    width: 39px;
+    height: 39px;
+
+    flex: 0 0 39px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: var(--lav-2);
+
+
+    color: var(--purple, #6f5aa8);
+
+    box-shadow:
+        0 5px 14px rgba(74, 59, 132, .08);
+}
+
+.entry-dress p {
+    margin: 6px 0 0;
+
+    color: var(--sub, #817895);
+
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   DIVISOR
+========================================================= */
+
+.entry-divider {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 0 25px;
+}
+
+.entry-divider span {
+    flex: 1;
+
+    height: 1px;
+
+    background: var(--border);
+}
+
+.entry-divider i {
+    width: 6px;
+    height: 6px;
+
+    transform: rotate(45deg);
+
+    background: var(--purple, #6f5aa8);
+
+    opacity: .45;
+}
+
+
+/* =========================================================
+   ACCESO
+========================================================= */
+
+.entry-access {
+    padding: 24px 25px 30px;
+
+    text-align: left;
+}
+
+.entry-access-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.entry-check {
+    color: #65a87e;
+}
+
+.entry-ticket-code {
+    margin-top: 13px;
+
+    padding: 9px 11px;
+
+    border-radius: 11px;
+
+    background: var(--surface);
+}
+
+.entry-ticket-code strong {
+    display: block;
+
+    color: var(--purple, #6f5aa8);
+
+    font-family: monospace;
+
+    font-size: 10px;
+
+    letter-spacing: .08em;
+}
+
+
+/* =========================================================
+   QR
+========================================================= */
+
+.entry-qr {
+    margin-top: 18px;
+
+    text-align: center;
+}
+
+.entry-qr-frame {
+    display: inline-flex;
+
+    padding: 13px;
+
+    border-radius: 23px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--borde);
+
+    box-shadow:
+        0 15px 30px rgba(74, 59, 132, .13);
+}
+
+.entry-qr-frame svg {
+    display: block;
+
+    width: 180px;
+    height: 180px;
+}
+
+.entry-qr p {
+    margin: 10px 0 0;
+
+    color: var(--sub, #817895);
+
+    font-size: 9px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.entry-footer {
+    padding: 20px 5px 0;
+
+    text-align: center;
+}
+
+.entry-footer p {
+    margin: 0;
+
+    color: var(--sub, #817895);
+
+    font-size: 9px;
+}
+
+.entry-footer strong {
+    color: var(--purple, #6f5aa8);
+}
+
+.entry-footer a {
+    display: inline-block;
+
+    margin-top: 8px;
+
+    color: var(--purple, #6f5aa8);
+
+    font-size: 10px;
+    font-weight: 900;
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+@media (hover: hover) {
+
+    .entry-card {
+        transition:
+            transform .35s ease,
+            box-shadow .35s ease;
+    }
+
+
+
+    .entry-map-link,
+    .entry-footer a {
+        transition:
+            opacity .2s ease,
+            transform .2s ease;
+    }
+
+    .entry-map-link:hover,
+    .entry-footer a:hover {
+        opacity: .7;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .entry-page {
+        padding:
+            18px 12px 35px;
+    }
+
+    .entry-header {
+        margin-bottom: 14px;
+    }
+
+    .entry-card {
+        border-radius: 34px;
+    }
+
+    .entry-card-top {
+        padding:
+            34px 20px 25px;
+    }
+
+    .entry-event h1 {
+        font-size: 57px;
+    }
+
+    .entry-guest {
+        margin-inline: 14px;
+    }
+
+    .entry-details {
+        grid-template-columns: 1fr;
+
+        margin-inline: 14px;
+    }
+
+    .entry-location,
+    .entry-dress {
+        margin-inline: 14px;
+    }
+
+    .entry-access {
+        padding-inline: 20px;
+    }
+}
+
+
+/* =========================================================
+   PANTALLAS GRANDES
+========================================================= */
+
+@media (min-width: 700px) {
+
+    .entry-page {
+        padding-top: 45px;
+    }
+
+    .entry-container {
+        width: 430px;
+    }
+}

@@ -415,7 +415,7 @@ export default function Crear() {
                             <span>Solicitar edad en la confirmación</span>
                         </label>
 
-                       
+
 
                         <label>
                             <div>
@@ -710,7 +710,7 @@ export default function Crear() {
                     </fieldset>
 
 
-                  
+
 
 
                     <fieldset>
@@ -775,6 +775,13 @@ export default function Crear() {
                                     description: "Romántica y sofisticada",
                                     color: "#8B203A",
                                     background: "#171B33"
+                                },
+                                {
+                                    id: "garden",
+                                    name: "Jardín Rosa",
+                                    description: "Romántico y botánico",
+                                    color: "#A9707A",
+                                    background: "#FBF3F1"
                                 }
                             ].map((theme) => (
                                 <button

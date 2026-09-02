@@ -48,6 +48,7 @@ export const demoInvitation = {
     template: "lavender"
 };
 
+
 export const xvDemoInvitation = {
     slug: "sofia-xv",
 
@@ -98,3 +99,10 @@ export const xvDemoInvitation = {
 
     template: "xv"
 };
+
+export const gardenDemoInvitation = {
+    ...xvDemoInvitation,
+    template: "garden",
+    eventType: "Cumpleaños"
+};
+
