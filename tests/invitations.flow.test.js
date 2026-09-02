@@ -8,6 +8,7 @@ import {
     loadRsvpsBySlug,
     slugify,
     getRsvpStats,
+    getSiteMetrics,
     buildRsvpsCsv,
     buildConfirmationQrUrl
 } from "../src/lib/invitations";
@@ -108,6 +109,49 @@ describe("Invitaciones XV - suite completa", () => {
     beforeEach(() => {
         setupLocalStorage();
         vi.restoreAllMocks();
+    });
+
+    it("resume las métricas generales del sitio para el panel de administracion general", () => {
+        const invitations = {
+            luciano: {
+                slug: "luciano",
+                name: "Luciano",
+                template: "rose",
+                password: "Luciano13",
+                date: "2026-10-02",
+                venue: "Salón Central",
+                address: "Calle Falsa 123"
+            },
+            ana: {
+                slug: "ana",
+                name: "Ana",
+                template: "xv",
+                password: "123456",
+                date: "",
+                venue: "",
+                address: ""
+            }
+        };
+
+        localStorage.setItem("mis15_invitations", JSON.stringify(invitations));
+        localStorage.setItem("rsvps_luciano", JSON.stringify([
+            { name: "Pedro", isOver18: true, restriction: "Sin gluten" },
+            { name: "Marta", isOver18: false, restriction: "Ninguna" }
+        ]));
+        localStorage.setItem("rsvps_ana", JSON.stringify([
+            { name: "Luis", isOver18: true, restriction: "Ninguna" },
+            { name: "Noelia", isOver18: true, restriction: "Vegetariano" }
+        ]));
+
+        const metrics = getSiteMetrics();
+
+        expect(metrics.totalInvitations).toBe(2);
+        expect(metrics.totalRsvps).toBe(4);
+        expect(metrics.totalAdults).toBe(3);
+        expect(metrics.totalMinors).toBe(1);
+        expect(metrics.templateBreakdown.rose).toBe(1);
+        expect(metrics.templateBreakdown.xv).toBe(1);
+        expect(metrics.incompleteInvitations).toBe(1);
     });
 
     it("usa modo claro por defecto si no hay una preferencia guardada", () => {

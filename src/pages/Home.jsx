@@ -47,6 +47,7 @@ export default function Home({ theme, onToggleTheme }) {
                         Ir al admin
                     </button>
 
+
                     <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
                 </div>
             </header>

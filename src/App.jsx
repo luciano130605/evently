@@ -6,6 +6,7 @@ import Crear from "./pages/Crear";
 import Invitacion from "./pages/Invitacion";
 import ConfirmarAsistencia from "./pages/ConfirmarAsistencia";
 import Admin from "./pages/Admin";
+import MetricsPanel from "./pages/MetricsPanel";
 import NotFoundPage from "./pages/NotFound";
 import { applyTheme, resolveThemePreference } from "./lib/theme";
 
@@ -51,6 +52,11 @@ function App() {
                 <Route
                     path="/admin"
                     element={<Admin theme={theme} onToggleTheme={toggleTheme} />}
+                />
+
+                <Route
+                    path="/metrics"
+                    element={<MetricsPanel theme={theme} onToggleTheme={toggleTheme} />}
                 />
 
                 <Route

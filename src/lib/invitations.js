@@ -4,6 +4,246 @@ import { hasSupabaseConfig, supabase } from "./supabase";
 const INVITATIONS_KEY = "mis15_invitations";
 const RSVPS_KEY_PREFIX = "rsvps_";
 
+const REQUIRED_FIELDS = [
+    { key: "name", label: "Nombre del festejado/a" },
+    { key: "date", label: "Fecha del evento" },
+    { key: "venue", label: "Lugar" },
+    { key: "address", label: "Dirección" },
+    { key: "template", label: "Plantilla" },
+    { key: "password", label: "Contraseña" }
+];
+
+function countSince(dates, days) {
+    const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+    return dates.filter((iso) => {
+        const time = new Date(iso).getTime();
+        return !Number.isNaN(time) && time >= cutoff;
+    }).length;
+}
+
+function buildDailySeries(dates, days = 14) {
+    const map = new Map();
+
+    for (let i = days - 1; i >= 0; i -= 1) {
+        const day = new Date();
+        day.setHours(0, 0, 0, 0);
+        day.setDate(day.getDate() - i);
+        map.set(day.toISOString().slice(0, 10), 0);
+    }
+
+    dates.forEach((iso) => {
+        if (!iso) return;
+        const time = new Date(iso);
+        if (Number.isNaN(time.getTime())) return;
+        const key = new Date(time.getFullYear(), time.getMonth(), time.getDate()).toISOString().slice(0, 10);
+        if (map.has(key)) {
+            map.set(key, map.get(key) + 1);
+        }
+    });
+
+    return Array.from(map.entries()).map(([date, count]) => ({ date, count }));
+}
+
+function buildWeekdaySeries(dates) {
+    const labels = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+    const counts = new Array(7).fill(0);
+
+    dates.forEach((iso) => {
+        if (!iso) return;
+        const time = new Date(iso);
+        if (Number.isNaN(time.getTime())) return;
+        counts[time.getDay()] += 1;
+    });
+
+    return labels.map((label, index) => ({ label, count: counts[index] }));
+}
+
+export async function getSiteMetrics() {
+    let invitationList = [];
+    let rsvpRows = [];
+
+    if (hasSupabaseConfig && supabase) {
+        const [{ data: invitationsData, error: invitationsError }, { data: rsvpsData, error: rsvpsError }] = await Promise.all([
+            supabase
+                .from("invitations")
+                .select("slug, name, date, venue, address, template, event_type, password, created_at, updated_at"),
+            supabase
+                .from("rsvps")
+                .select("slug, name, restriction, allergy, is_over_18, created_at")
+        ]);
+
+        if (invitationsError) {
+            console.error("Error loading invitations for metrics:", invitationsError);
+        } else if (invitationsData) {
+            invitationList = invitationsData;
+        }
+
+        if (rsvpsError) {
+            console.error("Error loading RSVPs for metrics:", rsvpsError);
+        } else if (rsvpsData) {
+            rsvpRows = rsvpsData.map((item) => ({
+                ...item,
+                isOver18: item.is_over_18 ?? true,
+                createdAt: item.created_at
+            }));
+        }
+    }
+
+    if (!invitationList.length) {
+        const localInvitations = readLocalInvitations();
+        invitationList = Object.values(localInvitations || {}).map((inv) => ({
+            slug: inv.slug,
+            name: inv.name,
+            date: inv.date,
+            venue: inv.venue,
+            address: inv.address,
+            template: inv.template,
+            event_type: inv.eventType,
+            password: inv.password,
+            created_at: inv.createdAt,
+            updated_at: inv.updatedAt
+        }));
+
+        rsvpRows = invitationList.flatMap((invitation) => {
+            const slug = slugify(String(invitation?.slug || ""));
+            if (!slug) return [];
+
+            return readLocalRsvps(slug).map((row) => ({
+                slug,
+                name: row.name,
+                restriction: row.restriction,
+                allergy: row.allergy,
+                isOver18: row.isOver18 !== false,
+                createdAt: row.createdAt || row.created_at
+            }));
+        });
+    }
+
+    const totalInvitations = invitationList.length;
+
+    const templateBreakdown = invitationList.reduce((acc, inv) => {
+        const template = String(inv?.template || "default").trim() || "default";
+        acc[template] = (acc[template] || 0) + 1;
+        return acc;
+    }, {});
+
+    const eventTypeBreakdown = invitationList.reduce((acc, inv) => {
+        const type = String(inv?.event_type || "Evento").trim() || "Evento";
+        acc[type] = (acc[type] || 0) + 1;
+        return acc;
+    }, {});
+
+    const missingFieldsBreakdown = REQUIRED_FIELDS.reduce((acc, field) => {
+        acc[field.label] = 0;
+        return acc;
+    }, {});
+
+    let incompleteInvitations = 0;
+    invitationList.forEach((inv) => {
+        let hasMissing = false;
+        REQUIRED_FIELDS.forEach((field) => {
+            if (!String(inv?.[field.key] || "").trim()) {
+                missingFieldsBreakdown[field.label] += 1;
+                hasMissing = true;
+            }
+        });
+        if (hasMissing) incompleteInvitations += 1;
+    });
+
+    const siteStats = getRsvpStats(rsvpRows);
+
+    const rsvpsBySlug = rsvpRows.reduce((acc, row) => {
+        const slug = slugify(String(row.slug || ""));
+        if (!slug) return acc;
+        if (!acc[slug]) acc[slug] = [];
+        acc[slug].push(row);
+        return acc;
+    }, {});
+
+    const invitationsWithoutRsvps = invitationList.filter((inv) => {
+        const slug = slugify(String(inv?.slug || ""));
+        return !rsvpsBySlug[slug] || rsvpsBySlug[slug].length === 0;
+    }).length;
+
+    const firstRsvpDelays = invitationList
+        .map((inv) => {
+            const slug = slugify(String(inv?.slug || ""));
+            const rows = rsvpsBySlug[slug] || [];
+            if (!rows.length || !inv?.created_at) return null;
+
+            const times = rows
+                .map((row) => new Date(row.createdAt || row.created_at).getTime())
+                .filter((time) => !Number.isNaN(time));
+            if (!times.length) return null;
+
+            const firstRsvpTime = Math.min(...times);
+            const invitationTime = new Date(inv.created_at).getTime();
+            if (Number.isNaN(invitationTime) || firstRsvpTime < invitationTime) return null;
+
+            return (firstRsvpTime - invitationTime) / (1000 * 60 * 60);
+        })
+        .filter((value) => value !== null);
+
+    const avgHoursToFirstRsvp = firstRsvpDelays.length
+        ? firstRsvpDelays.reduce((sum, value) => sum + value, 0) / firstRsvpDelays.length
+        : null;
+
+    const avgRsvpsPerInvitation = totalInvitations ? siteStats.total / totalInvitations : 0;
+
+    const invitationDates = invitationList.map((inv) => inv?.created_at).filter(Boolean);
+    const rsvpDates = rsvpRows.map((row) => row.createdAt || row.created_at).filter(Boolean);
+
+    const dailySeries = buildDailySeries(invitationDates, 14);
+    const dailyRsvpSeries = buildDailySeries(rsvpDates, 14);
+    const weekdaySeries = buildWeekdaySeries(invitationDates);
+
+    const last7 = countSince(invitationDates, 7);
+    const last14 = countSince(invitationDates, 14);
+    const weeklyGrowth = {
+        current: last7,
+        previous: Math.max(0, last14 - last7)
+    };
+
+    const recentActivity = [
+        ...invitationList.map((inv) => ({
+            type: "invitation",
+            label: inv?.name || inv?.slug || "Invitación",
+            slug: inv?.slug,
+            at: inv?.created_at
+        })),
+        ...rsvpRows.map((row) => ({
+            type: "rsvp",
+            label: row?.name || "Confirmación",
+            slug: row?.slug,
+            at: row.createdAt || row.created_at
+        }))
+    ]
+        .filter((item) => item.at)
+        .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+        .slice(0, 8);
+
+    return {
+        totalInvitations,
+        totalRsvps: siteStats.total,
+        totalAdults: siteStats.adults,
+        totalMinors: siteStats.minors,
+        totalRestrictions: siteStats.restrictions,
+        totalAllergies: siteStats.allergies,
+        incompleteInvitations,
+        missingFieldsBreakdown,
+        templateBreakdown,
+        eventTypeBreakdown,
+        avgRsvpsPerInvitation,
+        invitationsWithoutRsvps,
+        avgHoursToFirstRsvp,
+        dailySeries,
+        dailyRsvpSeries,
+        weekdaySeries,
+        weeklyGrowth,
+        recentActivity
+    };
+}
+
 export function slugify(value = "") {
     return String(value)
         .trim()
@@ -489,6 +729,7 @@ export function getRsvpStats(rows = []) {
         allergies
     };
 }
+
 
 export function buildRsvpsCsv(rows = []) {
     const safeRows = Array.isArray(rows) ? rows : [];

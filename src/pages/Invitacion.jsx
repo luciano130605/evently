@@ -477,7 +477,7 @@ export default function Invitacion() {
             <section className="invitation-section location-section">
                 <div className="section-content">
                     <span className="section-kicker">EL LUGAR</span>
-                    <h2>Donde es</h2>
+                    <h2>Dónde es</h2>
 
                     <div className="location-card">
                         <div className="location-info">
