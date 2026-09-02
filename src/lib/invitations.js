@@ -1,4 +1,4 @@
-import { demoInvitation } from "../data/demoInvitation";
+import { demoInvitation, xvDemoInvitation } from "../data/demoInvitation";
 import { hasSupabaseConfig, supabase } from "./supabase";
 
 const INVITATIONS_KEY = "mis15_invitations";
@@ -201,6 +201,14 @@ export async function loadInvitationBySlug(slug) {
 
     if (!safeSlug || safeSlug === "invitacion") {
         return null;
+    }
+
+    if (safeSlug === "demo") {
+        return demoInvitation;
+    }
+
+    if (["demo-xv", "demo-15", "demo-quince", "xv-demo"].includes(safeSlug)) {
+        return xvDemoInvitation;
     }
 
     if (hasSupabaseConfig && supabase) {

@@ -6,6 +6,7 @@ import Crear from "./pages/Crear";
 import Invitacion from "./pages/Invitacion";
 import ConfirmarAsistencia from "./pages/ConfirmarAsistencia";
 import Admin from "./pages/Admin";
+import NotFoundPage from "./pages/NotFound";
 import { applyTheme, resolveThemePreference } from "./lib/theme";
 
 import "./App.css";
@@ -54,7 +55,7 @@ function App() {
 
                 <Route
                     path="*"
-                    element={<Navigate to="/" replace />}
+                    element={<NotFoundPage />}
                 />
 
             </Routes>

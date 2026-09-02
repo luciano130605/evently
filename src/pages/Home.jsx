@@ -1,14 +1,22 @@
 
 
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import ThemeToggle from "../components/ThemeToggle";
 
 export default function Home({ theme, onToggleTheme }) {
     const navigate = useNavigate();
+    const [demoMode, setDemoMode] = useState("normal");
 
     const goToAdminQuick = () => {
         navigate("/admin");
+    };
+
+    const toggleDemo = () => {
+        const nextMode = demoMode === "normal" ? "xv" : "normal";
+        setDemoMode(nextMode);
+        navigate(nextMode === "normal" ? "/invitacion/demo" : "/invitacion/demo-xv");
     };
 
     return (
@@ -34,8 +42,6 @@ export default function Home({ theme, onToggleTheme }) {
                     >
                         Ver demo
                     </Link>
-
-
 
                     <button type="button" className="home-secondary" onClick={goToAdminQuick}>
                         Ir al admin
@@ -70,10 +76,9 @@ export default function Home({ theme, onToggleTheme }) {
                             Crear mi evento
                         </Link>
 
-                        <Link to="/invitacion/sofia" className="home-secondary">
-                            Ver cómo queda
+                        <Link to="/invitacion/demo" className="home-secondary">
+                            Ver demo
                         </Link>
-
                     </div>
 
 

@@ -1,11 +1,12 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import Countdown from "../components/Countdown";
 import RSVPForm from "../components/RSVPForm";
 import GiftSection from "../components/GiftSection";
+import NotFoundPage from "./NotFound";
 
-import { demoInvitation } from "../data/demoInvitation";
+import { demoInvitation, xvDemoInvitation } from "../data/demoInvitation";
 import { loadInvitationBySlug } from "../lib/invitations";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Album01FreeIcons, Calendar02Icon, ChevronDown, LinkCircleIcon, PinLocation02Icon, PinLocation03Icon, TieIcon } from "@hugeicons/core-free-icons";
@@ -72,18 +73,70 @@ export function getInvitationThemeConfig(templateKey) {
 
 export default function Invitacion() {
     const { slug } = useParams();
+    const navigate = useNavigate();
     const [invitation, setInvitation] = useState(demoInvitation);
     const [isLoading, setIsLoading] = useState(true);
+    const [notFound, setNotFound] = useState(false);
+    const isDemoScreen = slug === "demo" || slug === "demo-xv" || slug === "demo-15" || slug === "demo-quince" || slug === "xv-demo";
+    const demoMode = slug === "demo-xv" || slug === "demo-15" || slug === "demo-quince" || slug === "xv-demo" ? "xv" : "normal";
+
+    const handleDemoSwitch = (nextMode) => {
+        if (nextMode === "xv") {
+            navigate("/invitacion/demo-xv", { replace: true });
+            return;
+        }
+
+        navigate("/invitacion/demo", { replace: true });
+    };
 
     useEffect(() => {
         let active = true;
 
         async function loadData() {
             setIsLoading(true);
-            const nextInvitation = await loadInvitationBySlug(slug);
+            setNotFound(false);
+
+            const safeSlug = String(slug || "").trim();
+
+            if (!safeSlug) {
+                if (active) {
+                    setInvitation(demoInvitation);
+                    setNotFound(false);
+                    setIsLoading(false);
+                }
+                return;
+            }
+
+            if (safeSlug === "demo") {
+                if (active) {
+                    setInvitation(demoInvitation);
+                    setNotFound(false);
+                    setIsLoading(false);
+                }
+                return;
+            }
+
+            if (["demo-xv", "demo-15", "demo-quince", "xv-demo"].includes(safeSlug)) {
+                if (active) {
+                    setInvitation(xvDemoInvitation);
+                    setNotFound(false);
+                    setIsLoading(false);
+                }
+                return;
+            }
+
+            const nextInvitation = await loadInvitationBySlug(safeSlug);
 
             if (active) {
-                setInvitation(nextInvitation || demoInvitation);
+                if (!nextInvitation) {
+                    setInvitation(null);
+                    setNotFound(true);
+                    setIsLoading(false);
+                    return;
+                }
+
+                setInvitation(nextInvitation);
+                setNotFound(false);
                 setIsLoading(false);
             }
         }
@@ -95,11 +148,20 @@ export default function Invitacion() {
         };
     }, [slug]);
 
-    const invitationTheme = getInvitationThemeConfig(invitation.template);
-    const isXvEvent = /(xv|quince|15)/i.test(String(invitation.eventType || ""));
-    const isXvTheme = String(invitation.template || "").toLowerCase() === "xv";
-    const showDressCode = Boolean(invitation.showDressCode ?? isXvEvent);
-    const showPhotoAlbum = Boolean(invitation.showPhotoAlbum ?? Boolean(invitation.googlePhotosUrl));
+    if (!isLoading && notFound) {
+        return (
+            <NotFoundPage
+                title="La invitación no existe"
+                description="No encontramos una invitación asociada a esta URL. Revisá el enlace o volvé al inicio para crear una nueva invitación."
+            />
+        );
+    }
+
+    const invitationTheme = getInvitationThemeConfig(invitation?.template || "lavender");
+    const isXvEvent = /(xv|quince|15)/i.test(String(invitation?.eventType || ""));
+    const isXvTheme = String(invitation?.template || "").toLowerCase() === "xv";
+    const showDressCode = Boolean(invitation?.showDressCode ?? isXvEvent);
+    const showPhotoAlbum = Boolean(invitation?.showPhotoAlbum ?? Boolean(invitation?.googlePhotosUrl));
 
     function isAppleDevice() {
         const userAgent = navigator.userAgent || navigator.vendor || "";
@@ -222,6 +284,30 @@ export default function Invitacion() {
                     }
             }
         >
+            {isDemoScreen && (
+                <div className="demo-switch-wrap">
+                    <div className="demo-switch-panel">
+                        <span className="demo-switch-label">Demo</span>
+                        <div className="demo-switch" role="tablist" aria-label="Seleccionar demo">
+                            <button
+                                type="button"
+                                className={`demo-switch-option ${demoMode === "normal" ? "active" : ""}`}
+                                onClick={() => handleDemoSwitch("normal")}
+                            >
+                                Normal
+                            </button>
+                            <button
+                                type="button"
+                                className={`demo-switch-option ${demoMode === "xv" ? "active" : ""}`}
+                                onClick={() => handleDemoSwitch("xv")}
+                            >
+                                XV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <section className="invitation-cover">
                 <div className="cover-decoration cover-decoration-one" />
                 <div className="cover-decoration cover-decoration-two" />
