@@ -13,21 +13,20 @@ export const demoInvitation = {
     timeStart: "21:00",
     timeEnd: "00:00",
 
-    venue: "Salón Los Laureles",
+    venue: "Salón Ej.",
 
-    address: "",
+    address: "Av. Ej 125",
 
     mapsUrl:
-        "",
+        "https://www.google.com/maps/search/Av.+Ej+125/@-34.6209926,-58.4287506,15z?entry=ttu&g_ep=EgoyMDI2MDgzMC4wIKXMDSoASAFQAw%3D%3D",
 
     dressCode: "Elegante",
 
     dressDescription:
-        "Vestite como quieras sentirte especial. Un detalle importante: no usar blanco ni rojo.",
+        "Vestite como quieras. Un detalle importante: no usar blanco ni rojo.",
 
     dressColorsNotAllowed: "Blanco, rojo",
 
-    isOver18: true,
 
     requireAgeConfirmation: true,
     showDressCode: true,

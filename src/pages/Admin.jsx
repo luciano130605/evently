@@ -386,6 +386,7 @@ export default function Admin({ theme, onToggleTheme }) {
                     >
                         Ingresar
                     </button>
+                 
                 </div>
             </main>
         );

@@ -287,7 +287,6 @@ export default function Invitacion() {
             {isDemoScreen && (
                 <div className="demo-switch-wrap">
                     <div className="demo-switch-panel">
-                        <span className="demo-switch-label">Demo</span>
                         <div className="demo-switch" role="tablist" aria-label="Seleccionar demo">
                             <button
                                 type="button"
