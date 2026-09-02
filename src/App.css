@@ -254,6 +254,11 @@ img {
    HOME
 ========================================================= */
 
+/* =========================================================
+   TIPOGRAFÍA ESPECIAL · XV + JARDÍN
+========================================================= */
+
+
 .home-page {
   min-height: 100vh;
 
@@ -3918,6 +3923,11 @@ img {
   font-family: 'Cormorant Garamond', serif;
 }
 
+.public-invitation.garden-theme {
+
+  font-family: 'Cormorant Garamond', serif;
+}
+
 .public-invitation.xv-theme .invitation-cover {
   background:
     radial-gradient(circle at 50% 0%, #26305c 0%, var(--invite-background) 55%, var(--invite-background-2) 100%);
@@ -3942,6 +3952,7 @@ img {
   letter-spacing: 0.32em;
   text-transform: uppercase;
 }
+
 
 .public-invitation.xv-theme .cover-xv {
   margin-top: 34px;
@@ -4253,9 +4264,14 @@ img {
   text-transform: uppercase;
 }
 
-.public-invitation.xv-theme .countdown-section {
-  background: var(--invite-background);
-  padding: 80px 20px;
+
+.public-invitation.garden-theme .countdown-section h2,
+.public-invitation.garden-theme .section-content h2,
+.public-invitation.garden-theme .dress-content h2,
+.public-invitation.garden-theme .gift-section h2,
+.public-invitation.garden-theme .rsvp-card h2 {
+  font-family: 'Playfair Display', serif;
+  color: var(--invite-text-strong);
 }
 
 .public-invitation.xv-theme .countdown-section h2,
@@ -4274,10 +4290,22 @@ img {
   border: 1px solid rgba(217, 178, 107, 0.18);
 }
 
+.public-invitation.garden-theme .countdown-item strong {
+  font-family: 'Playfair Display', serif;
+  font-size: 30px;
+}
+
 .public-invitation.xv-theme .countdown-item strong {
   color: var(--invite-gold);
   font-family: 'Playfair Display', serif;
   font-size: 30px;
+}
+
+.public-invitation.garden-theme .countdown-item span {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
 }
 
 .public-invitation.xv-theme .countdown-item span {
@@ -4318,6 +4346,24 @@ img {
   color: var(--invite-gold);
 }
 
+.public-invitation.garden-theme .garden-xv {
+  margin-top: 12px;
+  font-family: 'Caveat', cursive !important;
+  font-size: clamp(70px, 15vw, 110px);
+  font-weight: 600;
+  line-height: .75;
+  color: #A9707A;
+  transform: rotate(-2deg);
+}
+
+
+.public-invitation.garden-theme .location-info h3 {
+  margin: 15px 0 5px;
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 800;
+}
+
 .public-invitation.xv-theme .location-info h3 {
   margin: 15px 0 5px;
   font-family: 'Playfair Display', serif;
@@ -4335,6 +4381,13 @@ img {
   color: var(--invite-text-soft);
   font-size: 13px;
   line-height: 1.6;
+}
+
+.public-invitation.garden-theme .secondary-button,
+.public-invitation.garden-theme .primary-button,
+.public-invitation.garden-theme .photo-album-button {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
 }
 
 .public-invitation.xv-theme .secondary-button,

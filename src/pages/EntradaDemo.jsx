@@ -176,7 +176,7 @@ export default function EntradaDemo() {
                         <div className="entry-qr">
                             <div className="entry-qr-frame">
                                 <QRCodeSVG
-                                    value="/invitacion/entrada/demo"
+                                    value="/validar/entrada/demo"
                                     size={180}
                                     bgColor="var(--surface)"
                                     fgColor="var(--purple)"

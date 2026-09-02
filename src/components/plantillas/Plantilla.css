@@ -344,6 +344,13 @@ svg.xv-flowers-top.xv-flowers-topleft {
 
 .garden-xv {
     margin-bottom: 20px;
+    margin-top: 12px;
+    font-family: 'Caveat', cursive !important;
+    font-size: clamp(70px, 15vw, 110px);
+    font-weight: 600;
+    line-height: .75;
+    color: #A9707A;
+    transform: rotate(-2deg);
 }
 
 /* =========================================================
