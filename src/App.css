@@ -216,6 +216,7 @@ img {
   cursor: no-drop;
   background: var(--border);
   color: var(--ink);
+  box-shadow: none;
 }
 
 .primary-button:disabled:hover {
