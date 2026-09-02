@@ -1,4 +1,3 @@
-
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Check } from "@hugeicons/core-free-icons";
 
@@ -23,7 +22,6 @@ export const requiredFields = [
     ["password", "Contraseña de administración"],
     ["date", "Fecha"],
     ["timeStart", "Desde"],
-    ["venue", "Nombre del salón"],
     ["address", "Dirección"],
     ["mapsUrl", "Link de Google Maps"],
     ["dressCode", "Tipo de dress code"],
@@ -52,6 +50,131 @@ export const isRequiredFormComplete = (formData = {}) => {
     return fieldsToValidate.every(([field]) => String(formData[field] ?? "").trim().length > 0);
 };
 
+const ONBOARDING_STEPS = [
+    {
+        title: "Información",
+        description: "Cargá el nombre del evento, el tipo de evento y elegí la URL personalizada que van a usar tus invitados."
+    },
+    {
+        title: "Solicitar edad",
+        description: "Es una seccion opcional. Podés desactivarlo si no aplica a tu evento."
+    },
+    {
+        title: "Contraseña de administración",
+        description: "La vas a necesitar para volver a editar tu invitación más adelante.",
+        warning: "No podemos recuperarla si la olvidás. Guardala en un lugar seguro: si la perdés, vas a tener que crear una invitación nueva."
+    },
+    {
+        title: "Fecha y hora",
+        description: "Definí cuándo empieza (y, si querés, cuándo termina) el evento."
+    },
+    {
+        title: "Ubicación",
+        description: "Escribí la dirección: el link de Google Maps se genera solo cuando elegís una de la lista de resultados."
+    },
+    {
+        title: "Dress code, fotos y regalos",
+        description: "Son secciones opcionales. Podés desactivarlas si no aplican a tu evento."
+    },
+    {
+        title: "Diseño",
+        description: "Elegí la paleta de colores: se va a aplicar automáticamente a toda tu invitación."
+    },
+    {
+        title: "¡Listo!",
+        description: "Al crear la invitación vas a llegar a tu panel de administración con el link único para compartir."
+    }
+];
+
+const ONBOARDING_STORAGE_KEY = "evently:onboarding-dismissed";
+
+function OnboardingGuide({ onDismiss }) {
+    const [step, setStep] = useState(0);
+
+    const totalSteps = ONBOARDING_STEPS.length;
+    const current = ONBOARDING_STEPS[step];
+    const isLastStep = step === totalSteps - 1;
+
+    const goNext = () => {
+        if (isLastStep) {
+            onDismiss();
+            return;
+        }
+
+        setStep((previous) => previous + 1);
+    };
+
+    const goBack = () => {
+        setStep((previous) => Math.max(0, previous - 1));
+    };
+
+    return (
+        <div
+            className="modal-backdrop onboarding-backdrop"
+            onClick={onDismiss}
+        >
+            <div
+                className="onboarding-modal"
+                onClick={(event) => event.stopPropagation()}
+            >
+                <button
+                    type="button"
+                    className="onboarding-modal-close"
+                    onClick={onDismiss}
+                    aria-label="Cerrar guía"
+                >
+                    ×
+                </button>
+
+                <div className="onboarding-dots">
+                    {ONBOARDING_STEPS.map((s, index) => (
+                        <span
+                            key={s.title}
+                            className={`onboarding-dot ${index === step ? "active" : ""} ${index < step ? "done" : ""}`}
+                        />
+                    ))}
+                </div>
+
+                <span className="onboarding-modal-step-label">
+                    Paso {step + 1} de {totalSteps}
+                </span>
+
+                <div className="onboarding-modal-body">
+                    <span className="onboarding-step-number">
+                        {step + 1}
+                    </span>
+
+                    <h3>{current.title}</h3>
+                    <p>{current.description}</p>
+
+                    {current.warning && (
+                        <p className="onboarding-warning"> {current.warning}</p>
+                    )}
+                </div>
+
+                <div className="onboarding-modal-footer">
+                    <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={goBack}
+                        disabled={step === 0}
+                    >
+                        Atrás
+                    </button>
+
+                    <button
+                        type="button"
+                        className="primary-button"
+                        onClick={goNext}
+                    >
+                        {isLastStep ? "Entendido, empezar" : "Siguiente"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function Crear() {
 
     const navigate =
@@ -72,6 +195,7 @@ export default function Crear() {
             heroImage: "",
             isOver18: true,
             requireAgeConfirmation: false,
+            maxGuests: "",
             showDressCode: true,
             showPhotoAlbum: true,
             showGiftSection: true,
@@ -83,6 +207,31 @@ export default function Crear() {
     const [addressResults, setAddressResults] = useState([]);
     const [addressSearching, setAddressSearching] = useState(false);
     const [addressMessage, setAddressMessage] = useState("");
+    const [showOnboarding, setShowOnboarding] = useState(false);
+
+    useEffect(() => {
+        if (editSlug) {
+            return;
+        }
+
+        try {
+            const dismissed = window.localStorage.getItem(ONBOARDING_STORAGE_KEY);
+            if (!dismissed) {
+                setShowOnboarding(true);
+            }
+        } catch (error) {
+            setShowOnboarding(true);
+        }
+    }, [editSlug]);
+
+    const dismissOnboarding = () => {
+        setShowOnboarding(false);
+        try {
+            window.localStorage.setItem(ONBOARDING_STORAGE_KEY, "1");
+        } catch (error) {
+            // localStorage no disponible; no bloquea el flujo
+        }
+    };
 
     useEffect(() => {
         if (!editSlug) {
@@ -107,7 +256,8 @@ export default function Crear() {
                     showPhotoAlbum: invitation.showPhotoAlbum ?? true,
                     showGiftSection: invitation.showGiftSection ?? true,
                     eventType: invitation.eventType || "Cumpleaños",
-                    googlePhotosUrl: invitation.googlePhotosUrl || demoInvitation.googlePhotosUrl
+                    googlePhotosUrl: invitation.googlePhotosUrl || demoInvitation.googlePhotosUrl,
+                    maxGuests: invitation.maxGuests ?? "",
                 }));
             }
 
@@ -269,6 +419,10 @@ export default function Crear() {
     return (
         <main className="creator-page">
 
+            {!editSlug && showOnboarding && (
+                <OnboardingGuide onDismiss={dismissOnboarding} />
+            )}
+
             <header className="creator-header">
 
                 <Link
@@ -319,6 +473,16 @@ export default function Crear() {
 
                     </div>
 
+                    {!editSlug && (
+                        <button
+                            type="button"
+                            className="onboarding-reopen"
+                            onClick={() => setShowOnboarding(true)}
+                        >
+                            Ver guía paso a paso
+                        </button>
+                    )}
+
                 </div>
 
 
@@ -356,6 +520,7 @@ export default function Crear() {
                             </div>
                             <select
                                 placeholder={form.eventType || "Cumpleaños"}
+                                value={form.eventType || "Cumpleaños"}
                                 onChange={(event) => update("eventType", event.target.value)}
                             >
                                 <option value="Cumpleaños">Cumpleaños</option>
@@ -442,10 +607,36 @@ export default function Crear() {
                                 necesaria para editar
                                 tu invitación.
                             </small>
+                            <small className="warning-message">
+                                No podemos recuperarla si la olvidás. Guardala en un lugar seguro.
+                            </small>
 
                         </label>
 
+                        <label>
+                            <div>
+                                Cantidad máxima de invitados
+                            </div>
+                            <input
+                                type="number"
+                                min="1"
+                                value={form.maxGuests}
+                                onChange={(event) =>
+                                    update(
+                                        "maxGuests",
+                                        event.target.value
+                                    )
+                                }
+                                placeholder="(opcional, dejalo vacío para no limitar)"
+                            />
+                            <small>
+                                Cuando se llegue a este número de confirmados, no se van a poder confirmar más invitados.
+                            </small>
+                        </label>
+
                     </fieldset>
+
+
 
 
                     <fieldset>
@@ -459,17 +650,10 @@ export default function Crear() {
                             </div>
                             <input
                                 type="date"
-                                placeholder={form.date || ""}
-                                onChange={(event) =>
-                                    update(
-                                        "date",
-                                        event.target.value
-                                    )
-                                }
+                                value={form.date || ""}
+                                onChange={(event) => update("date", event.target.value)}
                                 required
-                                style={{
-                                    width: "90%"
-                                }}
+                                style={{ width: "90%" }}
                             />
                         </label>
 
@@ -480,17 +664,10 @@ export default function Crear() {
                                 </div>
                                 <input
                                     type="time"
-                                    placeholder={form.timeStart || ""}
-                                    onChange={(event) =>
-                                        update(
-                                            "timeStart",
-                                            event.target.value
-                                        )
-                                    }
+                                    value={form.timeStart || ""}
+                                    onChange={(event) => update("timeStart", event.target.value)}
                                     required
-                                    style={{
-                                        width: "90%"
-                                    }}
+                                    style={{ width: "90%" }}
                                 />
                             </label>
 
@@ -501,7 +678,7 @@ export default function Crear() {
                                 </div>
                                 <input
                                     type="time"
-                                    placeholder={form.timeEnd || ""}
+                                    value={form.timeEnd || ""}
                                     onChange={(event) =>
                                         update(
                                             "timeEnd",
@@ -528,17 +705,16 @@ export default function Crear() {
 
 
                             <div>
-                                Nombre del salón <span title="Obligatorio" style={{ color: "var(--purple)" }}>*</span>
+                                Nombre del salón
                             </div>
                             <input
-                                placeholder={form.venue || ""}
+                                value={form.venue || ""}
                                 onChange={(event) =>
                                     update(
                                         "venue",
                                         event.target.value
                                     )
                                 }
-                                required
                             />
 
                         </label>
@@ -551,7 +727,7 @@ export default function Crear() {
 
                             <div className="address-search">
                                 <input
-                                    placeholder={form.address || ""}
+                                    value={form.address || ""}
                                     onChange={(event) => {
                                         const address = event.target.value;
                                         setForm((previous) => ({
@@ -586,6 +762,7 @@ export default function Crear() {
 
                             <input
                                 readOnly
+                                value={form.mapsUrl || ""}
                                 placeholder="Se completa automáticamente con la dirección"
                                 required
                             />
@@ -616,6 +793,7 @@ export default function Crear() {
                                 </div>
                                 <input
                                     placeholder={form.dressCode || ""}
+                                    value={form.dressCode || ""}
                                     onChange={(event) => update("dressCode", event.target.value)}
                                     required={form.showDressCode !== false}
                                     disabled={form.showDressCode === false}
@@ -626,6 +804,8 @@ export default function Crear() {
                                 Descripción
                                 <textarea
                                     placeholder={form.dressDescription || ""}
+                                    value={form.dressDescription || ""}
+
                                     onChange={(event) => update("dressDescription", event.target.value)}
                                     disabled={form.showDressCode === false}
                                 />
@@ -637,6 +817,7 @@ export default function Crear() {
                                 </div>
                                 <input
                                     placeholder={form.dressColorsNotAllowed || ""}
+                                    value={form.dressColorsNotAllowed || ""}
                                     onChange={(event) => update("dressColorsNotAllowed", event.target.value)}
                                     required={form.showDressCode !== false}
                                     disabled={form.showDressCode === false}
@@ -666,6 +847,7 @@ export default function Crear() {
                                 Álbum de Google Fotos
                                 <input
                                     onChange={(event) => update("googlePhotosUrl", event.target.value.trim())}
+                                    value={form.googlePhotosUrl || ""}
                                     placeholder="https://photos.google.com/share/..."
                                     disabled={form.showPhotoAlbum === false}
                                 />
@@ -693,6 +875,7 @@ export default function Crear() {
                                 Alias
                                 <input
                                     placeholder={form.alias || ""}
+                                    value={form.alias || ""}
                                     onChange={(event) => update("alias", event.target.value)}
                                     disabled={form.showGiftSection === false}
                                 />
@@ -702,6 +885,7 @@ export default function Crear() {
                                 CBU
                                 <input
                                     placeholder={form.cbu || ""}
+                                    value={form.cbu || ""}
                                     onChange={(event) => update("cbu", event.target.value)}
                                     disabled={form.showGiftSection === false}
                                 />

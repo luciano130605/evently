@@ -306,6 +306,9 @@ export function normalizeInvitation(input = {}) {
         name: fullName,
         firstName,
         lastName,
+        maxGuests: source.maxGuests !== undefined && source.maxGuests !== ""
+            ? Number(source.maxGuests)
+            : null,
         password: String(source.password || ""),
         subtitle: source.subtitle || "Celebramos juntos",
         eventType: source.eventType || source.event || "Evento",
@@ -399,6 +402,7 @@ function invitationFromDatabase(row) {
         mapsUrl: row.maps_url || row.mapsUrl,
         giftText: row.gift_text || row.giftText,
         heroImage: row.hero_image || row.heroImage,
+        maxGuests: row.max_guests ?? row.maxGuests ?? null,
         createdAt: row.created_at || row.createdAt,
         updatedAt: row.updated_at || row.updatedAt
     });
@@ -417,6 +421,7 @@ function invitationToDatabase(invitation) {
         address: invitation.address,
         maps_url: invitation.mapsUrl,
         dress_code: invitation.dressCode,
+        max_guests: invitation.maxGuests,
         dress_description: invitation.dressDescription,
         dress_colors_not_allowed: invitation.dressColorsNotAllowed,
         is_over_18: invitation.isOver18,
@@ -667,39 +672,49 @@ export async function saveRsvp(slug, payload) {
         return [];
     }
 
-    const duplicate = await hasDuplicateRsvpName(safeSlug, {
-        firstName: row.firstName,
-        lastName: row.lastName,
-        name: row.name
-    });
+    const invitation = await loadInvitationBySlug(safeSlug);
 
-    if (duplicate) {
-        throw new Error("Ya existe una confirmación de asistencia con ese mismo nombre y apellido.");
-    }
+    if (invitation?.maxGuests) {
+        const currentRsvps = await loadRsvpsBySlug(safeSlug);
 
-    if (hasSupabaseConfig && supabase) {
-        const { error } = await supabase.from("rsvps").insert([
-            {
-                slug: safeSlug,
-                name: row.name,
-                restriction: row.restriction,
-                allergy: row.allergy,
-                detail: row.detail,
-                is_over_18: row.isOver18,
-                created_at: row.created_at
-            }
-        ]);
-
-        if (error) {
-            console.error("Error saving RSVP to Supabase:", error);
+        if (currentRsvps.length >= Number(invitation.maxGuests)) {
+            throw new Error("Se alcanzó el cupo máximo de invitados para este evento.");
         }
+
+        const duplicate = await hasDuplicateRsvpName(safeSlug, {
+            firstName: row.firstName,
+            lastName: row.lastName,
+            name: row.name
+        });
+
+        if (duplicate) {
+            throw new Error("Ya existe una confirmación de asistencia con ese mismo nombre y apellido.");
+        }
+
+        if (hasSupabaseConfig && supabase) {
+            const { error } = await supabase.from("rsvps").insert([
+                {
+                    slug: safeSlug,
+                    name: row.name,
+                    restriction: row.restriction,
+                    allergy: row.allergy,
+                    detail: row.detail,
+                    is_over_18: row.isOver18,
+                    created_at: row.created_at
+                }
+            ]);
+
+            if (error) {
+                console.error("Error saving RSVP to Supabase:", error);
+            }
+        }
+
+        const localRsvps = readLocalRsvps(safeSlug);
+        localRsvps.push(row);
+        writeLocalRsvps(safeSlug, localRsvps);
+
+        return localRsvps;
     }
-
-    const localRsvps = readLocalRsvps(safeSlug);
-    localRsvps.push(row);
-    writeLocalRsvps(safeSlug, localRsvps);
-
-    return localRsvps;
 }
 
 export function getLocalInvitationFallback(slug) {

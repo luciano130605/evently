@@ -13,11 +13,12 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false })
         restriction: "Ninguna",
         allergy: "",
         detail: "",
-        isOver18: true
+        isOver18: false
     });
 
     const [sent, setSent] = useState(false);
     const [error, setError] = useState("");
+    const [full, setFull] = useState(false);
 
     const update = (field, value) => {
         setForm((previous) => ({
@@ -44,9 +45,25 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false })
             setSent(true);
         } catch (submitError) {
             setSent(false);
-            setError(submitError.message || "No se pudo guardar la confirmación.");
+            const message = submitError.message || "No se pudo guardar la confirmación.";
+
+            if (message.toLowerCase().includes("cupo")) {
+                setFull(true);
+            } else {
+                setError(message);
+            }
         }
     };
+
+    if (full) {
+        return (
+            <div className="rsvp-error">
+                <div className="error-icon"><HugeiconsIcon icon={Alert02Icon} size={25} /></div>
+                <h3>Cupo completo</h3>
+                <p>Se alcanzó el límite de invitados para este evento. Contactate directamente con el organizador si creés que es un error.</p>
+            </div>
+        );
+    }
 
     if (sent) {
         return (
@@ -58,10 +75,10 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false })
                 <h3>¡Listo!</h3>
                 <p>
                     Gracias por confirmar,
-                    {` ${fullName}`}. 
+                    {` ${fullName}`}.
                 </p>
 
-                <span>Nos vemos en los 15 de {name}</span>
+                <span>Nos vemos en el evento de {name}</span>
             </div>
         );
     }

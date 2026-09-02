@@ -9,7 +9,7 @@ import RoseGardenCover from "../components/plantillas/RoseGardenCover";
 import NormalCover from "../components/plantillas/NormalCover";
 import XVCover from "../components/plantillas/XVCover";
 import { demoInvitation, gardenDemoInvitation, xvDemoInvitation } from "../data/demoInvitation";
-import { loadInvitationBySlug } from "../lib/invitations";
+import { loadInvitationBySlug, loadRsvpsBySlug } from "../lib/invitations";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Album01FreeIcons, LinkCircleIcon, PinLocation02Icon, PinLocation03Icon, TieIcon } from "@hugeicons/core-free-icons";
 
@@ -86,6 +86,7 @@ export default function Invitacion() {
     const [invitation, setInvitation] = useState(demoInvitation);
     const [isLoading, setIsLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
+    const [confirmedCount, setConfirmedCount] = useState(0);
     const isDemoScreen = slug === "demo" || slug === "demo-xv" || slug === "demo-15" || slug === "demo-quince" || slug === "xv-demo" || slug === "demo-garden";
 
     const demoMode = ["demo-xv", "demo-15", "demo-quince", "xv-demo"].includes(slug)
@@ -166,6 +167,12 @@ export default function Invitacion() {
 
                 setInvitation(nextInvitation);
                 setNotFound(false);
+
+                if (nextInvitation.maxGuests) {
+                    const rsvps = await loadRsvpsBySlug(safeSlug);
+                    if (active) setConfirmedCount(rsvps.length);
+                }
+
                 setIsLoading(false);
             }
         }
@@ -457,6 +464,7 @@ export default function Invitacion() {
                         slug={slug}
                         name={invitation.name}
                         requireAgeConfirmation={Boolean(invitation.requireAgeConfirmation)}
+                        isFull={Boolean(invitation.maxGuests) && confirmedCount >= Number(invitation.maxGuests)}
                     />
                 </div>
             </section>

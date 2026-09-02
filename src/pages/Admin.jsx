@@ -386,7 +386,7 @@ export default function Admin({ theme, onToggleTheme }) {
                     >
                         Ingresar
                     </button>
-                 
+
                 </div>
             </main>
         );
@@ -412,6 +412,10 @@ export default function Admin({ theme, onToggleTheme }) {
                     </span>
 
                     <h1>{invitation.name}</h1>
+
+                    {invitation.maxGuests && stats.total >= Number(invitation.maxGuests) && (
+                        <span className="cupo-completo-badge">Cupo completo</span>
+                    )}
 
                     <p>
                         evently-azure-six.vercel.app/invitacion/{slug}
@@ -624,13 +628,28 @@ export default function Admin({ theme, onToggleTheme }) {
                         alignItems: "end",
                         gap: 10
                     }}>
-                        <strong>{stats.total}</strong>
+                        <strong>
+                            {stats.total}
+                            {invitation.maxGuests ? ` / ${invitation.maxGuests}` : ""}
+                        </strong>
                         <span
                             style={{
                                 marginBottom: 5
                             }}
                         >CONFIRMADOS</span>
                     </div>
+
+                    {invitation.maxGuests && (
+                        <div className="admin-stat-progress">
+                            <div
+                                className="admin-stat-progress-bar"
+                                style={{
+                                    width: `${Math.min(100, (stats.total / Number(invitation.maxGuests)) * 100)}%`,
+                                    backgroundColor: stats.total >= Number(invitation.maxGuests) ? "var(--danger, #E25555)" : "var(--purple)"
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 <div className="admin-stat">
