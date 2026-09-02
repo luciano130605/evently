@@ -184,8 +184,6 @@ export default function Crear() {
 
     const [form, setForm] =
         useState({
-            ...demoInvitation,
-
             firstName: "",
             lastName: "",
             name: "",
@@ -196,10 +194,28 @@ export default function Crear() {
             isOver18: true,
             requireAgeConfirmation: false,
             maxGuests: "",
+
+            date: "",
+            timeStart: "",
+            timeEnd: "",
+
+            venue: "",
+            address: "",
+            mapsUrl: "",
+
             showDressCode: true,
+            dressCode: "",
+            dressDescription: "",
+            dressColorsNotAllowed: "",
+
             showPhotoAlbum: true,
+            googlePhotosUrl: "",
+
             showGiftSection: true,
-            googlePhotosUrl: demoInvitation.googlePhotosUrl
+            alias: "",
+            cbu: "",
+
+            template: ""
         });
     const [saveError, setSaveError] = useState("");
     const [saving, setSaving] = useState(false);
