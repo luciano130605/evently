@@ -526,6 +526,7 @@ export default function Crear() {
                                 <option value="Cumpleaños">Cumpleaños</option>
                                 <option value="Fiesta">Fiesta</option>
                                 <option value="Casamiento">Casamiento</option>
+                                <option value="xv">XV</option>
                                 <option value="Fin de año">Fin de año</option>
                                 <option value="Cena">Cena</option>
                                 <option value="Evento especial">Evento especial</option>

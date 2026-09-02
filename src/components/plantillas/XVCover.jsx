@@ -602,6 +602,8 @@ function CornerGarlandR({ className }) {
 
 
 export default function XVCover({ invitation, onAddToCalendar, onScrollToCountdown }) {
+
+    const isXV = invitation?.eventType === "xv"
     return (
         <section className="invitation-cover">
             <div className="cover-decoration cover-decoration-one" />
@@ -651,19 +653,19 @@ export default function XVCover({ invitation, onAddToCalendar, onScrollToCountdo
                     <span className="disco-light l15" />
                     <span className="disco-light l16" />
                     <span className="disco-light l17" />
-<span className="disco-light l18" />
-<span className="disco-light l19" />
-<span className="disco-light l20" />
-<span className="disco-light l21" />
-<span className="disco-light l22" />
-<span className="disco-light l23" />
-<span className="disco-light l24" />
-<span className="disco-light l25" />
-<span className="disco-light l26" />
-<span className="disco-light l27" />
-<span className="disco-light l28" />
-<span className="disco-light l29" />
-<span className="disco-light l30" />
+                    <span className="disco-light l18" />
+                    <span className="disco-light l19" />
+                    <span className="disco-light l20" />
+                    <span className="disco-light l21" />
+                    <span className="disco-light l22" />
+                    <span className="disco-light l23" />
+                    <span className="disco-light l24" />
+                    <span className="disco-light l25" />
+                    <span className="disco-light l26" />
+                    <span className="disco-light l27" />
+                    <span className="disco-light l28" />
+                    <span className="disco-light l29" />
+                    <span className="disco-light l30" />
                 </div>
 
                 {/* destellos alrededor */}
@@ -713,10 +715,24 @@ export default function XVCover({ invitation, onAddToCalendar, onScrollToCountdo
 
             <div className="cover-content">
                 <span className="cover-kicker">ESTÁS INVITADO/A</span>
-                <div className="cover-xv">{invitation.eventType || "Evento"}</div>
+                {isXV ?
+                    <>
+                        <h1>{invitation.name} </h1>
 
-                <h1>{invitation.name}</h1>
-                <p></p>
+                        <div className="cover-xv"
+                            style={{
+                                fontSize: 100
+                            }}
+                        >{invitation.eventType || "Evento"}</div>
+
+                    </>
+                    :
+                    <>
+                        <div className="cover-xv">{invitation.eventType || "Evento"}</div>
+                        <h1>{invitation.name} </h1>
+
+                    </>
+                }
 
                 <div className="cover-date">
                     {new Date(`${invitation.date}T12:00:00`).toLocaleDateString("es-AR", {

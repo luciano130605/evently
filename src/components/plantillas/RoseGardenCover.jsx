@@ -276,7 +276,7 @@ export default function RoseGardenCover({
 
                 <div className="garden-xv">
                     {isXvEvent
-                        ? "quince"
+                        ? "XV"
                         : invitation.eventType || "Evento"}
                 </div>
 
