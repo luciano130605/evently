@@ -131,7 +131,7 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false })
                 </div>
             )}
 
-            <div className="form-field">
+            <div className="form-field select">
                 <label>Restricciones alimentarias</label>
                 <select
                     value={form.restriction}
