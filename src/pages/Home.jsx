@@ -27,12 +27,10 @@ export default function Home({ theme, onToggleTheme }) {
 
             <header className="home-header">
 
-                <Link
-                    to="/inicio"
-                    className="brand"
-                >
-                    evently
-                </Link>
+                <div className="home-brand-lockup">
+                    <img src="/favicon-512.png" alt="" className="home-brand-mark" width="32" height="32" />
+                    <span className="brand">evently</span>
+                </div>
 
 
                 <div className="home-header-actions">

@@ -269,6 +269,12 @@ img {
   transition: background var(--transition), color var(--transition);
 }
 
+.home-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .home-blob {
   position: absolute;
   border-radius: 50%;
@@ -349,7 +355,7 @@ img {
   position: relative;
   width: 42px;
   height: 22px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   border-radius: 999px;
   background: linear-gradient(135deg, var(--purple), var(--lav-2));
@@ -360,9 +366,12 @@ img {
   position: absolute;
   left: 4px;
   width: 16px;
+  display: flex;
+  align-items: center;
   height: 16px;
+  padding: 2px;
   border-radius: 50%;
-  background: var(--white);
+  background: var(--bg);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
   transition: transform var(--transition), background var(--transition);
 }
