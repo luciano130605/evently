@@ -391,7 +391,7 @@ export default function Invitacion() {
                                 <HugeiconsIcon icon={PinLocation03Icon} size={22} />
                             </div>
 
-                            <h3>{invitation.venue || "Salón"}</h3>
+                            <h3>{invitation.venue || ""}</h3>
                             <p>{invitation.address || "Dirección por confirmar"}</p>
 
                             {invitation.mapsUrl && (
