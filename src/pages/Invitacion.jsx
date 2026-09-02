@@ -330,21 +330,21 @@ export default function Invitacion() {
                                 className={`demo-switch-option ${demoMode === "normal" ? "active" : ""}`}
                                 onClick={() => handleDemoSwitch("normal")}
                             >
-                                Normal
+                                1
                             </button>
                             <button
                                 type="button"
                                 className={`demo-switch-option ${demoMode === "garden" ? "active" : ""}`}
                                 onClick={() => handleDemoSwitch("garden")}
                             >
-                                Jardín
+                                2
                             </button>
                             <button
                                 type="button"
                                 className={`demo-switch-option ${demoMode === "xv" ? "active" : ""}`}
                                 onClick={() => handleDemoSwitch("xv")}
                             >
-                                XV
+                                3
                             </button>
 
                         </div>

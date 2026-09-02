@@ -914,56 +914,48 @@ export default function Crear() {
                                 {
                                     id: "lavender",
                                     name: "Lavanda",
-                                    description: "Suave y romántico",
                                     color: "#9B8AFB",
                                     background: "#F7F3FF"
                                 },
                                 {
                                     id: "rose",
                                     name: "Rosa",
-                                    description: "Dulce y elegante",
                                     color: "#E88CA7",
                                     background: "#FFF4F7"
                                 },
                                 {
                                     id: "sage",
-                                    name: "Sage",
-                                    description: "Natural y delicado",
+                                    name: "Verde",
                                     color: "#82A88E",
                                     background: "#F3F8F4"
                                 },
                                 {
                                     id: "blue",
                                     name: "Celeste",
-                                    description: "Fresco y moderno",
                                     color: "#6F9DD8",
                                     background: "#F2F7FC"
                                 },
                                 {
                                     id: "peach",
                                     name: "Durazno",
-                                    description: "Cálido y alegre",
                                     color: "#E99A78",
                                     background: "#FFF6F1"
                                 },
                                 {
                                     id: "midnight",
-                                    name: "Midnight",
-                                    description: "Elegante y sofisticado",
+                                    name: "Medianoche",
                                     color: "#7668A8",
                                     background: "#F5F3FA"
                                 },
                                 {
                                     id: "xv",
                                     name: "XV",
-                                    description: "Romántica y sofisticada",
                                     color: "#8B203A",
                                     background: "#171B33"
                                 },
                                 {
                                     id: "garden",
-                                    name: "Jardín Rosa",
-                                    description: "Romántico y botánico",
+                                    name: "XV Rosa",
                                     color: "#A9707A",
                                     background: "#FBF3F1"
                                 }

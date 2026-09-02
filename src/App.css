@@ -5841,13 +5841,7 @@ img {
   transform: rotate(-2deg);
 }
 
-.garden-name {
-  margin-top: 14px;
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(42px, 8vw, 66px);
-  font-weight: 600;
-  color: #5C3A3E;
-}
+
 
 .garden-divider {
   width: 46px;
