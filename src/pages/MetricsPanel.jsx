@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { getSiteMetrics } from "../lib/invitations";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ChartBarLineIcon, CheckmarkBadge02Icon, CheckmarkCircle04Icon, DashboardCircleIcon, ChartAnalysisIcon, BadgePlus, BadgePlusIcon } from "@hugeicons/core-free-icons";
+import { CheckmarkBadge02Icon, CheckmarkCircle04Icon, DashboardCircleIcon, ChartAnalysisIcon, BadgePlusIcon } from "@hugeicons/core-free-icons";
 import ThemeToggle from "../components/ThemeToggle";
-
-const METRICS_CREDENTIALS = {
-    username: import.meta.env.VITE_METRICS_USERNAME || "",
-    password: import.meta.env.VITE_METRICS_PASSWORD || ""
-};
 
 const WEEKDAY_ORDER = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
@@ -44,17 +39,10 @@ function formatHours(hours) {
 }
 
 export default function MetricsPanel({ theme, onToggleTheme }) {
-    const navigate = useNavigate();
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const [authenticated, setAuthenticated] = useState(false);
     const [metrics, setMetrics] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!authenticated) return undefined;
-
         let active = true;
         setLoading(true);
 
@@ -72,64 +60,7 @@ export default function MetricsPanel({ theme, onToggleTheme }) {
         return () => {
             active = false;
         };
-    }, [authenticated]);
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-
-        if (username === METRICS_CREDENTIALS.username && password === METRICS_CREDENTIALS.password) {
-            setAuthenticated(true);
-            setError("");
-            return;
-        }
-
-        setError("Credenciales inválidas.");
-    };
-
-    if (!authenticated) {
-        return (
-            <main className="admin-page">
-                <header className="admin-header">
-                    <Link to="/">Inicio</Link>
-
-                    <span className="brand">evently</span>
-                    <div className="admin-header-actions">
-                        <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
-
-                    </div>
-                </header>
-
-                <form className="admin-login" onSubmit={handleSubmit}>
-                    <div className="admin-login-icon"><HugeiconsIcon icon={ChartBarLineIcon} size={24} /></div>
-                    <span className="section-kicker">MÉTRICAS</span>
-                    <h1>Panel general</h1>
-                    <p>Ingresá tus credenciales para ver el resumen de la página.</p>
-
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(event) => setUsername(event.target.value)}
-                        placeholder="Usuario"
-                        required
-                    />
-
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        placeholder="Contraseña"
-                        required
-                    />
-
-                    {error && <small className="error-message">{error}</small>}
-
-                    <button className="primary-button full" type="submit">
-                        Entrar
-                    </button>
-                </form>
-            </main>
-        );
-    }
+    }, []);
 
     if (loading || !metrics) {
         return (
@@ -138,9 +69,7 @@ export default function MetricsPanel({ theme, onToggleTheme }) {
                     <Link to="/">Inicio</Link>
                     <span className="brand">evently</span>
                     <div className="admin-header-actions">
-                        <button type="button" className="home-secondary" onClick={() => setAuthenticated(false)}>
-                            Cerrar sesión
-                        </button>
+                        <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
                     </div>
                 </header>
                 <div className="metrics-loading">Cargando métricas…</div>
@@ -170,10 +99,6 @@ export default function MetricsPanel({ theme, onToggleTheme }) {
     const maxWeekdayCount = Math.max(1, ...weekdaySeries.map((day) => day.count));
     const busiestDay = [...weekdaySeries].sort((a, b) => b.count - a.count)[0];
 
-    const growthDiff = metrics.weeklyGrowth.current - metrics.weeklyGrowth.previous;
-    const growthClass = growthDiff > 0 ? "up" : growthDiff < 0 ? "down" : "flat";
-    const growthIcon = growthDiff > 0 ? "▲" : growthDiff < 0 ? "▼" : "—";
-
     const abandonedPercent = metrics.totalInvitations
         ? Math.round((metrics.invitationsWithoutRsvps / metrics.totalInvitations) * 100)
         : 0;
@@ -189,7 +114,6 @@ export default function MetricsPanel({ theme, onToggleTheme }) {
                 <span className="brand">evently</span>
                 <div className="admin-header-actions">
                     <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
-
                 </div>
             </header>
 
@@ -203,82 +127,42 @@ export default function MetricsPanel({ theme, onToggleTheme }) {
 
             <section className="admin-stats">
                 <div className="admin-stat">
-
                     <HugeiconsIcon icon={DashboardCircleIcon} size={24} />
-                    <div style={{
-                        display: "flex",
-                        alignItems: "end",
-                        gap: 5
-                    }}>
-                        <span style={{
-                            fontSize: 10,
-                            marginBottom: 8
-                        }}>Total de invitaciones</span>
+                    <div style={{ display: "flex", alignItems: "end", gap: 5 }}>
+                        <span style={{ fontSize: 10, marginBottom: 8 }}>Total de invitaciones</span>
                         <strong>{metrics.totalInvitations}</strong>
                     </div>
                 </div>
 
                 <div className="admin-stat">
-
                     <HugeiconsIcon icon={CheckmarkCircle04Icon} size={24} />
-                    <div style={{
-                        display: "flex",
-                        alignItems: "end",
-                        gap: 5
-                    }}>
-                        <span style={{
-                            fontSize: 10,
-                            marginBottom: 8
-                        }}>Confirmaciones totales</span>
+                    <div style={{ display: "flex", alignItems: "end", gap: 5 }}>
+                        <span style={{ fontSize: 10, marginBottom: 8 }}>Confirmaciones totales</span>
                         <strong>{metrics.totalRsvps}</strong>
-
                     </div>
                 </div>
 
                 <div className="admin-stat">
-
                     <HugeiconsIcon icon={ChartAnalysisIcon} size={24} />
-                    <div style={{
-                        display: "flex",
-                        alignItems: "end",
-                        gap: 5
-                    }}>
-                        <span style={{
-                            fontSize: 10,
-                            marginBottom: 8
-                        }}>Promedio de invitados por evento</span>
+                    <div style={{ display: "flex", alignItems: "end", gap: 5 }}>
+                        <span style={{ fontSize: 10, marginBottom: 8 }}>Promedio de invitados por evento</span>
                         <strong>{metrics.avgRsvpsPerInvitation.toFixed(1)}</strong>
-
                     </div>
                 </div>
 
                 <div className="admin-stat">
-
                     <HugeiconsIcon icon={CheckmarkCircle04Icon} size={24} />
-                    <div style={{
-                        display: "flex",
-                        alignItems: "end",
-                        gap: 5
-                    }}>
-                        <span style={{
-                            fontSize: 10,
-                            marginBottom: 8
-                        }}>Invitaciones completas</span>
+                    <div style={{ display: "flex", alignItems: "end", gap: 5 }}>
+                        <span style={{ fontSize: 10, marginBottom: 8 }}>Invitaciones completas</span>
                         <strong>{100 - incompletePercent}%</strong>
-
-
                     </div>
                 </div>
-
             </section>
 
             <section className="metrics-section">
                 <div className="admin-section-title">
                     <strong>Actividad de los últimos 14 días</strong>
-                    <p>
-                        {metrics.weeklyGrowth.current} invitaciones esta semana{" "}
-                        
-                    </p>
+                    <p>{metrics.weeklyGrowth.current} invitaciones esta semana</p>
                 </div>
 
                 <div className="metrics-subtitle">Invitaciones creadas</div>
@@ -321,7 +205,7 @@ export default function MetricsPanel({ theme, onToggleTheme }) {
                 </div>
 
                 <div className="metrics-callout-grid">
-                    <div className={`metrics-callout`}>
+                    <div className="metrics-callout">
                         <span className="label">Invitaciones incompletas</span>
                         <strong>{metrics.incompleteInvitations} ({incompletePercent}%)</strong>
                         {topBottleneck && (
@@ -329,7 +213,7 @@ export default function MetricsPanel({ theme, onToggleTheme }) {
                         )}
                     </div>
 
-                    <div className={`metrics-callout `}>
+                    <div className="metrics-callout">
                         <span className="label">Invitaciones sin confirmaciones</span>
                         <strong>{metrics.invitationsWithoutRsvps} ({abandonedPercent}%)</strong>
                         <small className="detail">Creadas pero sin ningún RSVP todavía</small>
