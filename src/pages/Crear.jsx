@@ -355,7 +355,7 @@ export default function Crear() {
                                 Tipo de evento
                             </div>
                             <select
-                                value={form.eventType || "Cumpleaños"}
+                                placeholder={form.eventType || "Cumpleaños"}
                                 onChange={(event) => update("eventType", event.target.value)}
                             >
                                 <option value="Cumpleaños">Cumpleaños</option>
@@ -459,7 +459,7 @@ export default function Crear() {
                             </div>
                             <input
                                 type="date"
-                                value={form.date || ""}
+                                placeholder={form.date || ""}
                                 onChange={(event) =>
                                     update(
                                         "date",
@@ -480,7 +480,7 @@ export default function Crear() {
                                 </div>
                                 <input
                                     type="time"
-                                    value={form.timeStart || ""}
+                                    placeholder={form.timeStart || ""}
                                     onChange={(event) =>
                                         update(
                                             "timeStart",
@@ -501,7 +501,7 @@ export default function Crear() {
                                 </div>
                                 <input
                                     type="time"
-                                    value={form.timeEnd || ""}
+                                    placeholder={form.timeEnd || ""}
                                     onChange={(event) =>
                                         update(
                                             "timeEnd",
@@ -551,8 +551,7 @@ export default function Crear() {
 
                             <div className="address-search">
                                 <input
-                                    value={form.address || ""}
-                                    placeholder={""}
+                                    placeholder={form.address || ""}
                                     onChange={(event) => {
                                         const address = event.target.value;
                                         setForm((previous) => ({
@@ -586,7 +585,6 @@ export default function Crear() {
                             </div>
 
                             <input
-                                value={form.mapsUrl || ""}
                                 readOnly
                                 placeholder="Se completa automáticamente con la dirección"
                                 required
@@ -627,8 +625,7 @@ export default function Crear() {
                             <label>
                                 Descripción
                                 <textarea
-                                    value={form.dressDescription || ""}
-                                    placeholder=""
+                                    placeholder={form.dressDescription || ""}
                                     onChange={(event) => update("dressDescription", event.target.value)}
                                     disabled={form.showDressCode === false}
                                 />
