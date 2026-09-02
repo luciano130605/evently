@@ -125,35 +125,35 @@ export default function MetricsPanel({ theme, onToggleTheme }) {
                 </div>
             </section>
 
-            <section className="admin-stats">
-                <div className="admin-stat">
+            <section className="admin-stats metrics">
+                <div className="admin-stat metric-stat">
                     <HugeiconsIcon icon={DashboardCircleIcon} size={24} />
-                    <div style={{ display: "flex", alignItems: "end", gap: 5 }}>
-                        <span style={{ fontSize: 10, marginBottom: 8 }}>Total de invitaciones</span>
+                    <div className="metric-stat-content">
+                        <span>Total de invitaciones</span>
                         <strong>{metrics.totalInvitations}</strong>
                     </div>
                 </div>
 
-                <div className="admin-stat">
+                <div className="admin-stat metric-stat">
                     <HugeiconsIcon icon={CheckmarkCircle04Icon} size={24} />
-                    <div style={{ display: "flex", alignItems: "end", gap: 5 }}>
-                        <span style={{ fontSize: 10, marginBottom: 8 }}>Confirmaciones totales</span>
+                    <div className="metric-stat-content">
+                        <span>Confirmaciones totales</span>
                         <strong>{metrics.totalRsvps}</strong>
                     </div>
                 </div>
 
-                <div className="admin-stat">
+                <div className="admin-stat metric-stat">
                     <HugeiconsIcon icon={ChartAnalysisIcon} size={24} />
-                    <div style={{ display: "flex", alignItems: "end", gap: 5 }}>
-                        <span style={{ fontSize: 10, marginBottom: 8 }}>Promedio de invitados por evento</span>
+                    <div className="metric-stat-content">
+                        <span>Promedio de invitados por evento</span>
                         <strong>{metrics.avgRsvpsPerInvitation.toFixed(1)}</strong>
                     </div>
                 </div>
 
-                <div className="admin-stat">
-                    <HugeiconsIcon icon={CheckmarkCircle04Icon} size={24} />
-                    <div style={{ display: "flex", alignItems: "end", gap: 5 }}>
-                        <span style={{ fontSize: 10, marginBottom: 8 }}>Invitaciones completas</span>
+                <div className="admin-stat metric-stat">
+                    <HugeiconsIcon icon={CheckmarkBadge02Icon} size={24} />
+                    <div className="metric-stat-content">
+                        <span>Invitaciones completas</span>
                         <strong>{100 - incompletePercent}%</strong>
                     </div>
                 </div>

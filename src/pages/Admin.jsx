@@ -471,7 +471,7 @@ export default function Admin({ theme, onToggleTheme }) {
                             />
                         </button>
 
-                        <button
+                        {/* <button
                             type="button"
                             className="secondary-button"
                             title="QR de confirmación"
@@ -482,7 +482,7 @@ export default function Admin({ theme, onToggleTheme }) {
                                 <HugeiconsIcon icon={QrCode01Icon} size={15} />
 
                             </span>
-                        </button>
+                        </button> */}
 
 
 

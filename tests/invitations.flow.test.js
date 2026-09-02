@@ -111,7 +111,7 @@ describe("Invitaciones XV - suite completa", () => {
         vi.restoreAllMocks();
     });
 
-    it("resume las métricas generales del sitio para el panel de administracion general", () => {
+    it("resume las métricas generales del sitio para el panel de administracion general", async () => {
         const invitations = {
             luciano: {
                 slug: "luciano",
@@ -143,7 +143,7 @@ describe("Invitaciones XV - suite completa", () => {
             { name: "Noelia", isOver18: true, restriction: "Vegetariano" }
         ]));
 
-        const metrics = getSiteMetrics();
+        const metrics = await getSiteMetrics();
 
         expect(metrics.totalInvitations).toBe(2);
         expect(metrics.totalRsvps).toBe(4);
