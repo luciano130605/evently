@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { findRsvpByToken, checkInRsvp } from "../lib/invitations";
 
@@ -41,7 +41,7 @@ export default function Validar() {
             <main className="admin-page scan-page validar">
                 <div className="scan-container">
                     <div className="scan-intro">
-                      
+
                         <h1 className="title">Verificando</h1>
                         <p>Estamos revisando esta entrada, un segundo...</p>
                     </div>
@@ -61,7 +61,7 @@ export default function Validar() {
             <main className="admin-page scan-page validar">
                 <div className="scan-container">
                     <div className="scan-intro">
-                        
+
                         <h1 className="title">No válida</h1>
                     </div>
 
@@ -85,7 +85,7 @@ export default function Validar() {
             <main className="admin-page scan-page validar">
                 <div className="scan-container">
                     <div className="scan-intro">
-                       
+
                         <h1 className="title">Entrada válida</h1>
                         <p>Mostrale esta pantalla al organizador para ingresar.</p>
                     </div>
@@ -104,7 +104,7 @@ export default function Validar() {
         <main className="admin-page scan-page validar">
             <div className="scan-container">
                 <div className="scan-intro">
-                   
+
                     <h1 className="title">{rsvp.name}</h1>
                     <p>{rsvp.isOver18 === false ? "Menor de 18 años" : "Mayor de 18 años"}</p>
                 </div>
@@ -141,6 +141,16 @@ export default function Validar() {
                         <small className="rsvp-checked-in">¡Listo, ingreso registrado!</small>
                     )}
                 </div>
+
+            </div>
+<div style={{
+    marginTop:200,
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center"
+}}>
+                <Link to={`/admin/${slug}`} className="header-demo">Volver al panel</Link>
+
             </div>
         </main>
     );

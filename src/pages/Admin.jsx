@@ -820,7 +820,13 @@ export default function Admin({ theme, onToggleTheme }) {
                                     )}
                                     {rsvp.checkedIn && (
                                         <small className="rsvp-checked-in">
-                                            Llegó{rsvp.checkedInAt ? ` a las ${new Date(rsvp.checkedInAt).toLocaleTimeString("es-AR")}` : ""}
+                                            Llegó{rsvp.checkedInAt
+                                                ? ` a las ${new Date(rsvp.checkedInAt).toLocaleTimeString("es-AR", {
+                                                    hour: "numeric",
+                                                    minute: "2-digit",
+                                                    hour12: true
+                                                })}`
+                                                : ""}
                                         </small>
                                     )}
                                 </div>

@@ -5803,7 +5803,14 @@ img {
   }
 }
 
+.volver-validar {
+  background:var(--purple);
+  color:var(--ink);
+padding:10px;
+  text-align:center;
+  border-radius:999px;
 
+}
 
 .public-invitation.garden-theme {
   --invite-primary: #A9707A;
