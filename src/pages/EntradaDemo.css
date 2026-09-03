@@ -313,6 +313,117 @@
     font-weight: 700;
 }
 
+/* =========================================================
+   MODAL QR EN GRANDE
+========================================================= */
+
+.entry-qr-frame-button {
+    border: none;
+    cursor: pointer;
+    background: var(--surface);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.entry-qr-frame-button:active {
+    transform: scale(0.97);
+}
+
+.qr-modal-backdrop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 200;
+}
+
+.qr-modal {
+    position: relative;
+
+    width: min(100%, 340px);
+
+    padding: 32px 26px 28px;
+
+    border-radius: 32px;
+
+    background: var(--lav, #eee9ff);
+    border: 1px solid rgba(111, 90, 168, .1);
+
+    box-shadow: 0 35px 80px rgba(74, 59, 132, .25);
+
+    text-align: center;
+}
+
+.qr-modal h3 {
+    margin: 10px 0 20px;
+
+    color: var(--ink, #302a43);
+
+    font-family: "Baloo 2", sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.qr-modal-frame {
+    display: inline-flex;
+
+    padding: 16px;
+
+    border-radius: 24px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+
+    box-shadow: 0 15px 30px rgba(74, 59, 132, .15);
+}
+
+.qr-modal-frame svg {
+    display: block;
+    width: 280px;
+    height: 280px;
+    max-width: 100%;
+}
+
+.qr-modal p {
+    margin: 16px 0 0;
+
+    color: var(--sub, #817895);
+
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.qr-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background: var(--surface);
+    color: var(--purple, #6f5aa8);
+
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+@media (max-width: 480px) {
+    .qr-modal-frame svg {
+        width: 240px;
+        height: 240px;
+    }
+}
+
 
 /* =========================================================
    INVITADO
@@ -777,6 +888,31 @@
     }
 }
 
+/* --- Agregar al final de EntradaDemo.css --- */
+
+.qr-download-button {
+    margin-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid color-mix(in srgb, var(--purple) 30%, transparent);
+    background: transparent;
+    color: var(--purple);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.qr-download-button:hover {
+    background: color-mix(in srgb, var(--purple) 10%, transparent);
+}
+
+.qr-download-button:active {
+    transform: scale(0.97);
+}
 
 /* =========================================================
    MOBILE

@@ -14,6 +14,7 @@ import {
     Download02Icon,
     LockedIcon,
     QrCode01Icon,
+    ListTodoIcon,
     Share08Icon,
     UserGroup02Icon
 } from "@hugeicons/core-free-icons";
@@ -60,6 +61,9 @@ function AdminEntry({ theme, onToggleTheme }) {
             state: { authenticated: true }
         });
     };
+
+
+
 
     return (
         <main className="admin-page">
@@ -144,14 +148,17 @@ export default function Admin({ theme, onToggleTheme }) {
     const stats = getRsvpStats(visibleRsvps);
     const totalPages = Math.max(1, Math.ceil(visibleRsvps.length / 10));
     const paginatedRsvps = visibleRsvps.slice((page - 1) * 10, page * 10);
+    const checkedInCount = visibleRsvps.filter((rsvp) => rsvp.checkedIn).length;
     const confirmationUrl = buildConfirmationQrUrl(slug, window.location.origin);
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(confirmationUrl)}&size=220x220&charset-source=UTF-8&charset-target=UTF-8&margin=1`;
 
     useEffect(() => {
         let active = true;
 
-        async function fetchData() {
-            setLoading(true);
+        async function fetchData({ showLoading } = {}) {
+            if (showLoading) {
+                setLoading(true);
+            }
 
             const invitationData = await loadInvitationBySlug(slug);
             const rsvpData = await loadRsvpsBySlug(slug);
@@ -165,12 +172,30 @@ export default function Admin({ theme, onToggleTheme }) {
             setLoading(false);
         }
 
-        fetchData();
+        fetchData({ showLoading: true });
+
+        // Refresca cuando volvés a la pestaña (por ej. después de escanear en el celu)
+        const onVisible = () => {
+            if (document.visibilityState === "visible") {
+                fetchData();
+            }
+        };
+        document.addEventListener("visibilitychange", onVisible);
+
+        // Y además refresca cada 10s mientras la pestaña está abierta,
+        // por si el check-in lo hace otra persona en otro dispositivo
+        const interval = setInterval(() => {
+            if (document.visibilityState === "visible") {
+                fetchData();
+            }
+        }, 10000);
 
         return () => {
             active = false;
+            document.removeEventListener("visibilitychange", onVisible);
+            clearInterval(interval);
         };
-    }, [slug]);
+    }, [slug]);;
 
     useEffect(() => {
         if (!showDeleteModal) {
@@ -444,6 +469,16 @@ export default function Admin({ theme, onToggleTheme }) {
                         Editar invitación
                     </Link>
 
+
+                    {invitation.sendQr && (
+                        <Link
+                            className="secondary-button"
+                            to={`/admin/${slug}/escanear`}
+                        >
+                            Escanear entradas
+                        </Link>
+                    )}
+
                     <div style={{
                         display: "flex",
                         gap: "8px",
@@ -711,6 +746,27 @@ export default function Admin({ theme, onToggleTheme }) {
                         }}>ALERGIAS</span>
                     </div>
                 </div>
+                {invitation.sendQr && (
+                    <div className="admin-stat">
+                        <div className="admin-stat-icon">
+                            <HugeiconsIcon
+                                icon={ListTodoIcon}
+                                size={18}
+                            />
+                        </div>
+
+                        <div style={{
+                            display: "flex",
+                            alignItems: "end",
+                            gap: 10
+                        }}>
+                            <strong>{checkedInCount} / {stats.total}</strong>
+                            <span style={{
+                                marginBottom: 5
+                            }}>ASISTENCIA</span>
+                        </div>
+                    </div>
+                )}
             </section>
 
             <section className="admin-rsvps">
@@ -762,14 +818,36 @@ export default function Admin({ theme, onToggleTheme }) {
                                             Alergia: {rsvp.allergy}
                                         </small>
                                     )}
+                                    {rsvp.checkedIn && (
+                                        <small className="rsvp-checked-in">
+                                            Llegó{rsvp.checkedInAt ? ` a las ${new Date(rsvp.checkedInAt).toLocaleTimeString("es-AR")}` : ""}
+                                        </small>
+                                    )}
                                 </div>
 
-                                <small>
-                                    {new Date(
-                                        rsvp.createdAt ||
-                                        rsvp.created_at
-                                    ).toLocaleDateString("es-AR")}
-                                </small>
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                                    <small>
+                                        {new Date(
+                                            rsvp.createdAt ||
+                                            rsvp.created_at
+                                        ).toLocaleDateString("es-AR")}
+                                    </small>
+
+                                    {invitation.sendQr && rsvp.ticketToken && (
+                                        rsvp.checkedIn ? (
+                                            <span className="rsvp-ticket-link rsvp-ticket-llegado">
+                                                Llegó
+                                            </span>
+                                        ) : (
+                                            <Link
+                                                to={`/entrada/${slug}/${rsvp.ticketToken}`}
+                                                className="rsvp-ticket-link"
+                                            >
+                                                Ver entrada
+                                            </Link>
+                                        )
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>

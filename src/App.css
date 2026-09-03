@@ -147,6 +147,25 @@ img {
    SHARED
 ========================================================= */
 
+.title {
+  margin: 20px 0 15px;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: clamp(50px, 7vw, 86px);
+  line-height: .84;
+  letter-spacing: -.04em;
+  font-weight: 800;
+}
+
+.input-scan {
+  width: 100%;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--ink);
+  outline: none;
+  transition: .2s ease;
+}
+
 .brand {
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
@@ -2836,7 +2855,7 @@ img {
 .admin-stats strong {
   font-family: 'Baloo 2', sans-serif;
 
-  font-size: 42px;
+  font-size: 25px;
   line-height: 1;
 }
 
@@ -3117,6 +3136,15 @@ img {
   padding: 30px;
 
   text-align: center;
+}
+
+.validar {
+  background: var(--bg);
+  color: var(--ink)
+}
+
+.validar h1 {
+  color: var(--ink)
 }
 
 .center-page h1 {
@@ -3620,9 +3648,6 @@ img {
     padding: 17px;
   }
 
-  .admin-stats strong {
-    font-size: 35px;
-  }
 
   .gift-row strong {
     max-width: 140px;
@@ -5822,6 +5847,36 @@ img {
   max-width: 460px;
 }
 
+.rsvp-ticket-share {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.rsvp-ticket-share-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.rsvp-ticket-llegado {
+  color: #3f9d63 !important;
+}
+
+.rsvp-checked-in {
+  display: block;
+  margin-top: 4px;
+  color: #3f9d63;
+  font-weight: 700;
+}
+
+.rsvp-ticket-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--purple, #6f5aa8);
+  text-decoration: none;
+}
+
 .garden-kicker {
   display: inline-block;
   font-family: 'Cormorant Garamond', serif;
@@ -6116,5 +6171,399 @@ img {
 
   .onboarding-modal-footer button {
     width: 100%;
+  }
+}
+
+
+/* =========================================================
+   ESCANEAR · CONTROL DE ACCESO
+   (agregar al final de tu CSS global, junto al resto de .admin-*)
+========================================================= */
+
+.scan-page {
+  position: relative;
+  overflow: hidden;
+}
+
+
+.scan-container {
+  position: relative;
+  z-index: 1;
+
+  width: min(100%, 420px);
+  margin: 46px auto 60px;
+  padding: 0 18px;
+}
+
+.scan-intro {
+  margin-bottom: 22px;
+  text-align: center;
+}
+
+.scan-intro .section-kicker {
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.scan-kicker-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--purple);
+}
+
+.scan-intro .title {
+  margin: 6px 0 10px;
+  font-size: clamp(38px, 9vw, 52px);
+}
+
+.scan-intro p {
+  max-width: 300px;
+  margin: 0 auto;
+
+  color: var(--sub);
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   PILL DE ESTADO
+========================================================= */
+
+.scan-status-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  width: fit-content;
+  margin: 0 auto 20px;
+  padding: 7px 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  background: var(--panel);
+  color: var(--sub);
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.scan-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+
+.scan-status-pill[data-state="live"] .scan-status-dot {
+  background: #6eb48b;
+  box-shadow: 0 0 0 3px rgba(110, 180, 139, .16);
+  animation: scanPulse 1.6s ease-in-out infinite;
+}
+
+.scan-status-pill[data-state="loading"] .scan-status-dot {
+  background: var(--purple);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--purple) 18%, transparent);
+  animation: scanPulse 1s ease-in-out infinite;
+}
+
+.scan-status-pill[data-state="error"] {
+  border-color: var(--red-border);
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.scan-status-pill[data-state="error"] .scan-status-dot {
+  background: var(--red);
+  box-shadow: none;
+  animation: none;
+}
+
+@keyframes scanPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.4);
+    opacity: .55;
+  }
+}
+
+/* =========================================================
+   VISOR DE CÁMARA
+========================================================= */
+
+.scan-frame-wrap {
+  position: relative;
+
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 1 / 1;
+
+  margin: 0 auto;
+  padding: 14px;
+
+  border-radius: 32px;
+
+  background:
+    linear-gradient(150deg,
+      var(--lav),
+      var(--lav-2) 55%,
+      var(--mint));
+
+  box-shadow:
+    0 30px 70px rgba(74, 59, 132, .16);
+
+  overflow: hidden;
+}
+
+.scan-video {
+  width: 100%;
+  height: 100%;
+
+  border-radius: 20px;
+  overflow: hidden;
+
+  background: var(--ink);
+}
+
+.scan-video video,
+.scan-video canvas {
+  border-radius: 20px !important;
+}
+
+.scan-corner {
+  position: absolute;
+
+  width: 26px;
+  height: 26px;
+
+  z-index: 3;
+
+  border: 3px solid var(--purple);
+}
+
+.scan-corner-tl {
+  top: 22px;
+  left: 22px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 12px;
+}
+
+.scan-corner-tr {
+  top: 22px;
+  right: 22px;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 12px;
+}
+
+.scan-corner-bl {
+  bottom: 22px;
+  left: 22px;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: 12px;
+}
+
+.scan-corner-br {
+  bottom: 22px;
+  right: 22px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 12px;
+}
+
+.scan-line {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+
+  height: 2px;
+
+  z-index: 3;
+
+  background: linear-gradient(90deg, transparent, var(--purple), transparent);
+
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--purple) 55%, transparent);
+
+  animation: scanTravel 2.4s ease-in-out infinite;
+}
+
+@keyframes scanTravel {
+
+  0%,
+  100% {
+    top: 26px;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  50% {
+    top: calc(100% - 26px);
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.scan-restriccion {
+  max-width: 340px;
+  margin: 20px auto 0;
+  padding: 14px 16px;
+
+  border: 1px solid var(--border);
+  border-radius: 16px;
+margin-bottom:10px;
+  background: var(--lav);
+  color: var(--ink);
+  text-align: left;
+}
+
+.scan-restriccion strong {
+  display: block;
+  margin-bottom: 4px;
+
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+
+.scan-restriccion p {
+  margin: 0;
+
+  font-size: 11.5px;
+  line-height: 1.5;
+  opacity: .9;
+}
+.scan-error {
+  max-width: 340px;
+  margin: 20px auto 0;
+  padding: 14px 16px;
+
+  border: 1px solid var(--red-border);
+  border-radius: 16px;
+
+  background: var(--red-bg);
+  color: var(--red);
+
+  text-align: left;
+}
+
+.scan-error strong {
+  display: block;
+  margin-bottom: 4px;
+
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+
+.scan-error p {
+  margin: 0;
+
+  font-size: 11.5px;
+  line-height: 1.5;
+  opacity: .9;
+}
+
+/* =========================================================
+   DIVISOR + CARGA MANUAL
+========================================================= */
+
+.scan-divider {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  max-width: 340px;
+  margin: 28px auto 18px;
+}
+
+.scan-divider span {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.scan-divider i {
+  width: 6px;
+  height: 6px;
+  transform: rotate(45deg);
+  background: var(--purple);
+  opacity: .45;
+}
+
+.scan-ok {
+  max-width: 340px;
+  margin: 0 auto;
+
+  text-align: center;
+}
+
+.scan-manual small {
+  display: block;
+
+  color: var(--sub);
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+.scan-manual {
+  max-width: 340px;
+  margin: 0 auto;
+
+  text-align: left;
+}
+
+.scan-manual small {
+  display: block;
+
+  color: var(--sub);
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.scan-manual-row {
+  display: flex;
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+.scan-manual-row .input-scan {
+  flex: 1;
+  height: 46px;
+  padding: 0 14px;
+}
+
+@media (max-width: 480px) {
+  .scan-container {
+    margin-top: 28px;
+  }
+
+  .scan-frame-wrap {
+    max-width: 280px;
   }
 }

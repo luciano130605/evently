@@ -212,6 +212,7 @@ export default function Crear() {
             googlePhotosUrl: "",
 
             showGiftSection: true,
+            sendQr: false,
             alias: "",
             cbu: "",
 
@@ -272,6 +273,7 @@ export default function Crear() {
                     showPhotoAlbum: invitation.showPhotoAlbum ?? true,
                     showGiftSection: invitation.showGiftSection ?? true,
                     eventType: invitation.eventType || "Cumpleaños",
+                    sendQr: invitation.sendQr ?? false,
                     googlePhotosUrl: invitation.googlePhotosUrl || demoInvitation.googlePhotosUrl,
                     maxGuests: invitation.maxGuests ?? "",
                 }));
@@ -913,10 +915,27 @@ export default function Crear() {
 
 
 
+                    <fieldset>
+                        <legend>07 · ENTRADA DIGITAL</legend>
 
+                        <label className="checkbox-row">
+                            <input
+                                type="checkbox"
+                                checked={Boolean(form.sendQr)}
+                                onChange={(event) => update("sendQr", event.target.checked)}
+                            />
+                            <span>Enviar entrada digital con QR a los invitados</span>
+                        </label>
+
+                        <small>
+                            Si lo activás, al confirmar asistencia se le va a pedir el email o WhatsApp
+                            al invitado para mandarle su entrada con QR. El día del evento vas a poder
+                            escanearlo desde el panel de admin para registrar quién llegó.
+                        </small>
+                    </fieldset>
                     <fieldset>
                         <legend>
-                            07 · DISEÑO
+                            08 · DISEÑO
                         </legend>
 
                         <div className="design-intro">

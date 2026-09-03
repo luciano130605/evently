@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Check, Alert02Icon } from "@hugeicons/core-free-icons";
@@ -6,7 +7,7 @@ import { Check, Alert02Icon } from "@hugeicons/core-free-icons";
 import { saveRsvp } from "../lib/invitations";
 
 
-export default function RSVPForm({ slug, name, requireAgeConfirmation = false }) {
+export default function RSVPForm({ slug, name, requireAgeConfirmation = false, sendQr = false }) {
     const [form, setForm] = useState({
         firstName: "",
         lastName: "",
@@ -16,7 +17,11 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false })
         isOver18: false
     });
 
+    const [contactMethod, setContactMethod] = useState("email");
+    const [contactValue, setContactValue] = useState("");
+
     const [sent, setSent] = useState(false);
+    const [savedRsvp, setSavedRsvp] = useState(null);
     const [error, setError] = useState("");
     const [full, setFull] = useState(false);
 
@@ -36,11 +41,21 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false })
             return;
         }
 
+        if (sendQr && !contactValue.trim()) {
+            return;
+        }
+
         try {
-            await saveRsvp(slug, {
+            const payload = {
                 ...form,
-                name: fullName
-            });
+                name: fullName,
+                contactEmail: contactMethod === "email" ? contactValue.trim() : "",
+                contactPhone: contactMethod === "whatsapp" ? contactValue.trim() : ""
+            };
+
+            const savedRow = await saveRsvp(slug, payload, { sendQr });
+
+            setSavedRsvp(savedRow);
             setError("");
             setSent(true);
         } catch (submitError) {
@@ -66,6 +81,10 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false })
     }
 
     if (sent) {
+        const ticketUrl = savedRsvp?.ticketToken
+            ? `${window.location.origin}/entrada/${slug}/${savedRsvp.ticketToken}`
+            : "";
+
         return (
             <div className="rsvp-success">
                 <div className="success-icon">
@@ -79,6 +98,38 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false })
                 </p>
 
                 <span>Nos vemos en el evento de {name}</span>
+
+                {sendQr && ticketUrl && (
+                    <div className="rsvp-ticket-share">
+                        <p>Guardá o enviá tu entrada con QR:</p>
+
+                        <div className="rsvp-ticket-share-actions">
+                            <div style={{
+                                display:"flex",
+                                gap:4
+                            }}>
+                                <a
+                                    href={`mailto:?subject=${encodeURIComponent(`Tu entrada para ${name}`)}&body=${encodeURIComponent(`Acá está tu entrada: ${ticketUrl}`)}`}
+                                    className="secondary-button"
+                                >
+                                    Enviar por email
+                                </a>
+
+                                <a
+                                    href={`https://wa.me/?text=${encodeURIComponent(`Acá está tu entrada: ${ticketUrl}`)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="secondary-button"
+                                >
+                                    Enviar por WhatsApp
+                                </a>
+                            </div>
+                            <Link to={`/entrada/${slug}/${savedRsvp.ticketToken}`} className="primary-button">
+                                Ver mi entrada
+                            </Link>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
@@ -185,6 +236,35 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false })
                         onChange={(event) => update("detail", event.target.value)}
                     />
                 </div>
+            )}
+
+            {sendQr && (
+                <>
+                    <div className="form-field select">
+                        <label>¿Cómo querés recibir tu entrada?</label>
+                        <select
+                            value={contactMethod}
+                            onChange={(event) => {
+                                setContactMethod(event.target.value);
+                                setContactValue("");
+                            }}
+                        >
+                            <option value="email">Email</option>
+                            <option value="whatsapp">WhatsApp</option>
+                        </select>
+                    </div>
+
+                    <div className="form-field">
+                        <label>{contactMethod === "email" ? "Tu email" : "Tu WhatsApp"}</label>
+                        <input
+                            type={contactMethod === "email" ? "email" : "tel"}
+                            placeholder={contactMethod === "email" ? "tu@email.com" : "+54 9 11 ..."}
+                            value={contactValue}
+                            onChange={(event) => setContactValue(event.target.value)}
+                            required
+                        />
+                    </div>
+                </>
             )}
 
             <button className="primary-button full" type="submit">

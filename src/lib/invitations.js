@@ -327,6 +327,7 @@ export function normalizeInvitation(input = {}) {
         showDressCode: source.showDressCode !== undefined ? Boolean(source.showDressCode) : Boolean(demoInvitation.showDressCode),
         showPhotoAlbum: source.showPhotoAlbum !== undefined ? Boolean(source.showPhotoAlbum) : Boolean(demoInvitation.showPhotoAlbum),
         showGiftSection: source.showGiftSection !== undefined ? Boolean(source.showGiftSection) : Boolean(demoInvitation.showGiftSection),
+        sendQr: source.sendQr !== undefined ? Boolean(source.sendQr) : Boolean(demoInvitation.sendQr),
         googlePhotosUrl: source.googlePhotosUrl || source.googlePhotos || demoInvitation.googlePhotosUrl,
         alias: source.alias || "",
         cbu: source.cbu || "",
@@ -397,6 +398,7 @@ function invitationFromDatabase(row) {
         showDressCode: row.show_dress_code ?? row.showDressCode ?? true,
         showPhotoAlbum: row.show_photo_album ?? row.showPhotoAlbum ?? true,
         showGiftSection: row.show_gift_section ?? row.showGiftSection ?? true,
+        sendQr: row.send_qr ?? row.sendQr ?? false,
         eventType: row.event_type || row.eventType || "Evento",
         googlePhotosUrl: row.google_photos_url || row.googlePhotosUrl || "",
         mapsUrl: row.maps_url || row.mapsUrl,
@@ -429,6 +431,7 @@ function invitationToDatabase(invitation) {
         show_dress_code: invitation.showDressCode,
         show_photo_album: invitation.showPhotoAlbum,
         show_gift_section: invitation.showGiftSection,
+        send_qr: invitation.sendQr,
         event_type: invitation.eventType,
         google_photos_url: invitation.googlePhotosUrl,
         alias: invitation.alias,
@@ -605,7 +608,12 @@ export async function loadRsvpsBySlug(slug) {
             return data.map((item) => ({
                 ...item,
                 isOver18: item.is_over_18 ?? item.isOver18 ?? true,
-                createdAt: item.created_at || item.createdAt || new Date().toISOString()
+                createdAt: item.created_at || item.createdAt || new Date().toISOString(),
+                checkedIn: Boolean(item.checked_in ?? item.checkedIn),
+                checkedInAt: item.checked_in_at || item.checkedInAt || null,
+                ticketToken: item.ticket_token || item.ticketToken || null,
+                contactEmail: item.contact_email || item.contactEmail || null,
+                contactPhone: item.contact_phone || item.contactPhone || null
             }));
         }
     }
@@ -650,12 +658,29 @@ export async function hasDuplicateRsvpName(slug, payload = {}) {
     });
 }
 
-export async function saveRsvp(slug, payload) {
+// Genera un identificador único, random y no adivinable para el QR de cada invitado.
+export function generateTicketToken() {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
+        return crypto.randomUUID().replace(/-/g, "");
+    }
+
+    return Array.from({ length: 24 }, () =>
+        "abcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 36)]
+    ).join("");
+}
+
+export async function saveRsvp(slug, payload, { sendQr = false } = {}) {
     const safeSlug = slugify(String(slug || ""));
     const firstName = String(payload.firstName ?? payload.first_name ?? "").trim();
     const lastName = String(payload.lastName ?? payload.last_name ?? "").trim();
     const nameFromLegacy = String(payload.name || "").trim();
-    const fullName = [firstName || splitNameParts(nameFromLegacy).firstName, lastName || splitNameParts(nameFromLegacy).lastName].filter(Boolean).join(" ").trim() || nameFromLegacy;
+    const fullName = [
+        firstName || splitNameParts(nameFromLegacy).firstName,
+        lastName || splitNameParts(nameFromLegacy).lastName
+    ].filter(Boolean).join(" ").trim() || nameFromLegacy;
+
+    const nowIso = new Date().toISOString();
+
     const row = {
         firstName,
         lastName,
@@ -664,12 +689,20 @@ export async function saveRsvp(slug, payload) {
         allergy: String(payload.allergy || "").trim(),
         detail: payload.detail || "",
         isOver18: payload.isOver18 !== undefined ? Boolean(payload.isOver18) : true,
-        createdAt: new Date().toISOString(),
-        created_at: new Date().toISOString()
+        createdAt: nowIso,
+        created_at: nowIso,
+        checkedIn: false,
+        checkedInAt: null
     };
 
+    if (sendQr) {
+        row.ticketToken = generateTicketToken();
+        row.contactEmail = payload.contactEmail ? String(payload.contactEmail).trim() : null;
+        row.contactPhone = payload.contactPhone ? String(payload.contactPhone).trim() : null;
+    }
+
     if (!safeSlug || !row.name) {
-        return [];
+        throw new Error("Faltan datos para confirmar la asistencia.");
     }
 
     const invitation = await loadInvitationBySlug(safeSlug);
@@ -680,41 +713,131 @@ export async function saveRsvp(slug, payload) {
         if (currentRsvps.length >= Number(invitation.maxGuests)) {
             throw new Error("Se alcanzó el cupo máximo de invitados para este evento.");
         }
-
-        const duplicate = await hasDuplicateRsvpName(safeSlug, {
-            firstName: row.firstName,
-            lastName: row.lastName,
-            name: row.name
-        });
-
-        if (duplicate) {
-            throw new Error("Ya existe una confirmación de asistencia con ese mismo nombre y apellido.");
-        }
-
-        if (hasSupabaseConfig && supabase) {
-            const { error } = await supabase.from("rsvps").insert([
-                {
-                    slug: safeSlug,
-                    name: row.name,
-                    restriction: row.restriction,
-                    allergy: row.allergy,
-                    detail: row.detail,
-                    is_over_18: row.isOver18,
-                    created_at: row.created_at
-                }
-            ]);
-
-            if (error) {
-                console.error("Error saving RSVP to Supabase:", error);
-            }
-        }
-
-        const localRsvps = readLocalRsvps(safeSlug);
-        localRsvps.push(row);
-        writeLocalRsvps(safeSlug, localRsvps);
-
-        return localRsvps;
     }
+
+    const duplicate = await hasDuplicateRsvpName(safeSlug, {
+        firstName: row.firstName,
+        lastName: row.lastName,
+        name: row.name
+    });
+
+    if (duplicate) {
+        throw new Error("Ya existe una confirmación de asistencia con ese mismo nombre y apellido.");
+    }
+
+    if (hasSupabaseConfig && supabase) {
+        const { error } = await supabase.from("rsvps").insert([
+            {
+                slug: safeSlug,
+                name: row.name,
+                restriction: row.restriction,
+                allergy: row.allergy,
+                detail: row.detail,
+                is_over_18: row.isOver18,
+                created_at: row.created_at,
+                checked_in: row.checkedIn,
+                checked_in_at: row.checkedInAt,
+                ticket_token: row.ticketToken || null,
+                contact_email: row.contactEmail || null,
+                contact_phone: row.contactPhone || null
+            }
+        ]);
+
+        if (error) {
+            console.error("Error saving RSVP to Supabase:", error);
+        }
+    }
+
+    const localRsvps = readLocalRsvps(safeSlug);
+    localRsvps.push(row);
+    writeLocalRsvps(safeSlug, localRsvps);
+
+    return row;
+}
+
+// Busca el RSVP de un invitado por su token de entrada (para la página de la entrada y la validación).
+export async function findRsvpByToken(slug, ticketToken) {
+    const safeSlug = slugify(String(slug || ""));
+
+    if (!safeSlug || !ticketToken) {
+        return null;
+    }
+
+    if (hasSupabaseConfig && supabase) {
+        const { data, error } = await supabase
+            .from("rsvps")
+            .select("*")
+            .eq("slug", safeSlug)
+            .eq("ticket_token", ticketToken)
+            .maybeSingle();
+
+        if (!error && data) {
+            return {
+                ...data,
+                isOver18: data.is_over_18 ?? data.isOver18 ?? true,
+                createdAt: data.created_at,
+                checkedIn: Boolean(data.checked_in),
+                checkedInAt: data.checked_in_at || null,
+                ticketToken: data.ticket_token
+            };
+        }
+    }
+
+    const localRsvps = readLocalRsvps(safeSlug);
+    return localRsvps.find((row) => row.ticketToken === ticketToken) || null;
+}
+
+// Marca la llegada del invitado cuando el admin escanea (o abre) su QR.
+export async function checkInRsvp(slug, ticketToken) {
+    const safeSlug = slugify(String(slug || ""));
+
+    if (!safeSlug || !ticketToken) {
+        return null;
+    }
+
+    const nowIso = new Date().toISOString();
+
+    if (hasSupabaseConfig && supabase) {
+        const { data, error } = await supabase
+            .from("rsvps")
+            .update({ checked_in: true, checked_in_at: nowIso })
+            .eq("slug", safeSlug)
+            .eq("ticket_token", ticketToken)
+            .select()
+            .maybeSingle();
+
+        if (!error && data) {
+            const localRsvps = readLocalRsvps(safeSlug);
+            const updatedLocal = localRsvps.map((row) =>
+                row.ticketToken === ticketToken
+                    ? { ...row, checkedIn: true, checkedInAt: nowIso }
+                    : row
+            );
+            writeLocalRsvps(safeSlug, updatedLocal);
+
+            return {
+                ...data,
+                isOver18: data.is_over_18 ?? true,
+                checkedIn: true,
+                checkedInAt: nowIso,
+                ticketToken: data.ticket_token
+            };
+        }
+    }
+
+    const localRsvps = readLocalRsvps(safeSlug);
+    let updatedRow = null;
+
+    const updatedLocal = localRsvps.map((row) => {
+        if (row.ticketToken === ticketToken) {
+            updatedRow = { ...row, checkedIn: true, checkedInAt: nowIso };
+            return updatedRow;
+        }
+        return row;
+    });
+
+    writeLocalRsvps(safeSlug, updatedLocal);
+    return updatedRow;
 }
 
 export function getLocalInvitationFallback(slug) {
@@ -756,7 +879,9 @@ export function buildRsvpsCsv(rows = []) {
         "allergy",
         "detail",
         "isOver18",
-        "createdAt"
+        "createdAt",
+        "checkedIn",
+        "checkedInAt"
     ];
 
     const escapeCell = (value) => {
@@ -780,7 +905,9 @@ export function buildRsvpsCsv(rows = []) {
             row.allergy || "",
             row.detail || "",
             row.isOver18 === false ? "false" : "true",
-            row.createdAt || row.created_at || ""
+            row.createdAt || row.created_at || "",
+            row.checkedIn ? "true" : "false",
+            row.checkedInAt || ""
         ].map(escapeCell).join(",");
     }).join("\n");
 

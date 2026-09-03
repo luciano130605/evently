@@ -465,6 +465,7 @@ export default function Invitacion() {
                         name={invitation.name}
                         requireAgeConfirmation={Boolean(invitation.requireAgeConfirmation)}
                         isFull={Boolean(invitation.maxGuests) && confirmedCount >= Number(invitation.maxGuests)}
+                        sendQr={Boolean(invitation.sendQr)}
                     />
                 </div>
             </section>

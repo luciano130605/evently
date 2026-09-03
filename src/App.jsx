@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import Home from "./pages/Home";
 import Crear from "./pages/Crear";
 import EntradaDemo from "./pages/EntradaDemo";
+import Entrada from "./pages/Entrada";
+import Validar from "./pages/Validar";
+import Escanear from "./pages/Escanear";
 import Invitacion from "./pages/Invitacion";
 import ConfirmarAsistencia from "./pages/ConfirmarAsistencia";
 import Admin from "./pages/Admin";
 import MetricsPanel from "./pages/MetricsPanel";
 import NotFoundPage from "./pages/NotFound";
+
 import { applyTheme, resolveThemePreference } from "./lib/theme";
 
 import "./App.css";
@@ -50,9 +54,29 @@ function App() {
                     element={<Admin theme={theme} onToggleTheme={toggleTheme} />}
                 />
 
-                <Route
+                              <Route
                     path="/invitacion/entrada/demo"
                     element={<EntradaDemo />}
+                />
+
+                <Route
+                    path="/entrada/:slug/:ticketToken"
+                    element={<Entrada />}
+                />
+
+                <Route
+                    path="/validar/:slug/:ticketToken"
+                    element={<Validar />}
+                />
+
+                <Route
+                    path="/admin/:slug/escanear"
+                    element={<Escanear />}
+                />
+
+                <Route
+                    path="/admin"
+                    element={<Admin theme={theme} onToggleTheme={toggleTheme} />}
                 />
 
                 <Route
