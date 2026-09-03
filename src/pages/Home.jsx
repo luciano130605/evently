@@ -67,10 +67,7 @@ export default function Home({ theme, onToggleTheme }) {
 
 
                     <button type="button" className="home-secondary" onClick={goToAdminQuick}>
-                        <HugeiconsIcon
-                            icon={DoorOpenIcon}
-                            size={20}
-                        />
+                       Admin
                     </button>
 
                 </div>
