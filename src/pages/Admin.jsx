@@ -818,6 +818,11 @@ export default function Admin({ theme, onToggleTheme }) {
                                             Alergia: {rsvp.allergy}
                                         </small>
                                     )}
+                                    {rsvp.restriction === "Otra" && rsvp.detail && (
+                                        <small className="rsvp-allergy">
+                                            Otra: {rsvp.detail}
+                                        </small>
+                                    )}
                                     {rsvp.checkedIn && (
                                         <small className="rsvp-checked-in">
                                             Llegó{rsvp.checkedInAt

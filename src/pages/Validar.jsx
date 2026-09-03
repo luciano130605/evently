@@ -103,7 +103,7 @@ export default function Validar() {
     return (
         <main className="admin-page scan-page validar">
             <div className="scan-container">
-            <Link to={`/admin/${slug}`} className="top">Volver al panel</Link>
+                <Link to={`/admin/${slug}`} className="top">Volver al panel</Link>
 
                 <div className="scan-intro">
 
@@ -118,7 +118,11 @@ export default function Validar() {
                 {rsvp.restriction && rsvp.restriction !== "Ninguna" && (
                     <div className="scan-restriccion" style={{ marginTop: 18 }}>
                         <strong>Restricción alimentaria</strong>
-                        <p>{rsvp.restriction}{rsvp.allergy ? ` — ${rsvp.allergy}` : ""}</p>
+                        <p>
+                            {rsvp.restriction}
+                            {rsvp.allergy ? ` — ${rsvp.allergy}` : ""}
+                            {rsvp.restriction === "Otra" && rsvp.detail ? ` — ${rsvp.detail}` : ""}
+                        </p>
                     </div>
                 )}
 
