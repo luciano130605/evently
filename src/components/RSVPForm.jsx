@@ -104,7 +104,7 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false, s
                         <p>Guardá o enviá tu entrada con QR:</p>
 
                         <div className="rsvp-ticket-share-actions">
-                            <div style={{
+                            {/* <div style={{
                                 display:"flex",
                                 gap:4
                             }}>
@@ -123,7 +123,7 @@ export default function RSVPForm({ slug, name, requireAgeConfirmation = false, s
                                 >
                                     Enviar por WhatsApp
                                 </a>
-                            </div>
+                            </div> */}
                             <Link to={`/entrada/${slug}/${savedRsvp.ticketToken}`} className="primary-button">
                                 Ver mi entrada
                             </Link>
