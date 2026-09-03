@@ -11,7 +11,7 @@ import {
     Download04Icon,
 } from "@hugeicons/core-free-icons";
 import { loadInvitationBySlug, findRsvpByToken } from "../lib/invitations";
-import InstallPwaGuide from "../components/InstallPwaGuide";
+import InstallPwaGuide from "../components/Installpwaguide";
 import "./EntradaDemo.css";
 import "../components/InstallPwaGuide.css";
 
