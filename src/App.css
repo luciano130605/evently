@@ -3140,7 +3140,25 @@ img {
 
 .validar {
   background: var(--bg);
-  color: var(--ink)
+  display: flex;
+  align-items: center;
+  color: var(--ink);
+}
+
+.top {
+  padding: 9px 16px;
+
+  border-radius: 999px;
+  border: none;
+  background: var(--lav);
+  color: var(--purple);
+
+  font-size: 12px;
+  font-weight: 800;
+
+  transition: .2s ease;
+  position: relative !important;
+  top: -200px !important
 }
 
 .validar h1 {
@@ -3427,6 +3445,8 @@ img {
     width: 100%;
     max-width: 300px;
   }
+
+
 
   .home-preview .preview-card {
     width: 285px;
@@ -5804,11 +5824,11 @@ img {
 }
 
 .volver-validar {
-  background:var(--purple);
-  color:var(--ink);
-padding:10px;
-  text-align:center;
-  border-radius:999px;
+  background: var(--purple);
+  color: var(--ink);
+  padding: 10px;
+  text-align: center;
+  border-radius: 999px;
 
 }
 
@@ -6443,7 +6463,7 @@ padding:10px;
 
   border: 1px solid var(--border);
   border-radius: 16px;
-margin-bottom:10px;
+  margin-bottom: 10px;
   background: var(--lav);
   color: var(--ink);
   text-align: left;
@@ -6464,6 +6484,7 @@ margin-bottom:10px;
   line-height: 1.5;
   opacity: .9;
 }
+
 .scan-error {
   max-width: 340px;
   margin: 20px auto 0;
@@ -6536,6 +6557,7 @@ margin-bottom:10px;
   font-size: 11px;
   line-height: 1.5;
 }
+
 .scan-manual {
   max-width: 340px;
   margin: 0 auto;

@@ -103,6 +103,8 @@ export default function Validar() {
     return (
         <main className="admin-page scan-page validar">
             <div className="scan-container">
+            <Link to={`/admin/${slug}`} className="top">Volver al panel</Link>
+
                 <div className="scan-intro">
 
                     <h1 className="title">{rsvp.name}</h1>
@@ -143,15 +145,8 @@ export default function Validar() {
                 </div>
 
             </div>
-<div style={{
-    marginTop:200,
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center"
-}}>
-                <Link to={`/admin/${slug}`} className="header-demo">Volver al panel</Link>
 
-            </div>
+
         </main>
     );
 }
