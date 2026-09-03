@@ -1,7 +1,10 @@
 
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+    DoorOpenIcon
+} from "@hugeicons/core-free-icons";
 import ThemeToggle from "../components/ThemeToggle";
 import { QRCodeSVG } from "qrcode.react";
 const DEMO_ROUTES = {
@@ -59,12 +62,17 @@ export default function Home({ theme, onToggleTheme }) {
                         {demoMode === "garden" && "Ver demo Jardín"}
                     </button>
 
-                    <button type="button" className="home-secondary" onClick={goToAdminQuick}>
-                        Ir al admin
-                    </button>
-
 
                     <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
+
+
+                    <button type="button" className="home-secondary" onClick={goToAdminQuick}>
+                        <HugeiconsIcon
+                            icon={DoorOpenIcon}
+                            size={20}
+                        />
+                    </button>
+
                 </div>
             </header>
 
