@@ -3145,13 +3145,21 @@ img {
   color: var(--ink);
 }
 
+.primary {
+  background: var(--lav);
+  color: var(--purple);
+
+}
+
+.sec {
+  color: var(--sub);
+}
+
 .top {
   padding: 9px 16px;
 
   border-radius: 999px;
   border: none;
-  background: var(--lav);
-  color: var(--purple);
 
   font-size: 12px;
   font-weight: 800;

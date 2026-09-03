@@ -46,10 +46,7 @@ export default function Validar() {
                         <p>Estamos revisando esta entrada, un segundo...</p>
                     </div>
 
-                    <div className="scan-status-pill" data-state="loading">
-                        <span className="scan-status-dot" />
-                        Buscando entrada
-                    </div>
+                 
                 </div>
             </main>
         );
@@ -103,8 +100,15 @@ export default function Validar() {
     return (
         <main className="admin-page scan-page validar">
             <div className="scan-container">
-                <Link to={`/admin/${slug}`} className="top">Volver al panel</Link>
-
+                <div style={{
+                    display:"flex",
+                    alignItems:"center",
+                    justifyContent:"space-between"
+                }
+                }>
+                    <Link to={`/admin/${slug}/escanear`} className="top primary">Volver a escanear</Link>
+                    <Link to={`/admin/${slug}`} className="top sec">Volver al panel</Link>
+                </div>
                 <div className="scan-intro">
 
                     <h1 className="title">{rsvp.name}</h1>
